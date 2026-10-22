@@ -1,0 +1,42 @@
+name: Create upload key (run once)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  key:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Check password secret
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ ${#KEYSTORE_PASSWORD} -lt 8 ]; then
+            echo "::error::Add a secret named KEYSTORE_PASSWORD (at least 8 characters) first."
+            exit 1
+          fi
+
+      - name: Generate upload keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          mkdir out
+          keytool -genkeypair -v \
+            -keystore out/masrofi-upload.jks -storetype PKCS12 \
+            -alias upload -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
+            -dname "CN=Hesham Taha, O=Masrofi, C=EG"
+          base64 -w 0 out/masrofi-upload.jks > out/KEYSTORE_BASE64.txt
+
+      - name: Download the key from here
+        uses: actions/upload-artifact@v4
+        with:
+          name: masrofi-upload-key
+          path: out/
+          retention-days: 1
