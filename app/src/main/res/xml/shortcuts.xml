@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="add_expense"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_add"
+        android:shortcutShortLabel="@string/shortcut_add"
+        android:shortcutLongLabel="@string/shortcut_add_long">
+        <intent
+            android:action="com.heshamtaha.masrofi.ADD_EXPENSE"
+            android:targetPackage="com.heshamtaha.masrofi"
+            android:targetClass="com.heshamtaha.masrofi.MainActivity" />
+    </shortcut>
+</shortcuts>
