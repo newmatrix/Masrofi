@@ -19,7 +19,7 @@ import org.json.JSONObject
 import java.util.Calendar
 
 /**
- * Schedules the 11 PM daily reminder and the debt / gam'eya reminders
+ * Schedules the daily reminder (time chosen by the user, default 11 PM) and the debt / gam'eya reminders
  * that the web app sends through AndroidBridge.syncReminders().
  */
 object Reminders {
@@ -27,7 +27,7 @@ object Reminders {
     private const val PREFS = "masrofi_reminders"
     const val ACTION_DAILY = "com.heshamtaha.masrofi.DAILY"
     const val ACTION_DUE = "com.heshamtaha.masrofi.DUE"
-    private const val DAILY_HOUR = 23
+    private const val DEFAULT_DAILY_MIN = 23 * 60 // 11 PM
     private const val MAX_DUE = 40
 
     fun createChannel(c: Context) {
@@ -48,11 +48,12 @@ object Reminders {
         val am = c.getSystemService(AlarmManager::class.java)
         val now = System.currentTimeMillis()
 
-        // Daily 11 PM reminder
+        // Daily reminder at the time picked in the app (minutes since midnight)
         val daily = pending(c, 1, ACTION_DAILY, null, null)
         am.cancel(daily)
         if (cfg.optBoolean("daily", false)) {
-            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next(DAILY_HOUR), daily)
+            val at = cfg.optInt("dailyAt", DEFAULT_DAILY_MIN).let { if (it in 0..1439) it else DEFAULT_DAILY_MIN }
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next(at / 60, at % 60), daily)
         }
 
         // Debt and gam'eya reminders
@@ -74,9 +75,9 @@ object Reminders {
         prefs.edit().putInt("dueCount", n).apply()
     }
 
-    private fun next(hour: Int): Long {
+    private fun next(hour: Int, minute: Int): Long {
         val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         if (cal.timeInMillis <= System.currentTimeMillis()) cal.add(Calendar.DAY_OF_YEAR, 1)
