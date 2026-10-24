@@ -44,6 +44,7 @@
 .sp-code{font-size:1.7rem;font-weight:700;letter-spacing:.12em;text-align:center;direction:ltr;color:var(--brand);background:var(--surface-2);border-radius:14px;padding:14px 8px;margin:10px 0;user-select:all;-webkit-user-select:all}
 .sp-row{display:flex;gap:8px;margin-top:8px}
 .sp-row .btn{flex:1}
+.sp-auto{flex:1.5;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.8rem;font-weight:600;line-height:1.35;background:var(--surface-2);border-radius:12px;padding:6px 10px}
 .xby{color:var(--brand)}
 .style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
 .sty{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:6px 6px 8px;border:1.5px solid transparent;border-radius:14px;background:var(--surface-2);cursor:pointer;transition:transform .12s,border-color .2s}
@@ -857,13 +858,13 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
       <div class="card-h"><h3>مساحة مشتركة</h3><span class="hint" id="spStatus"></span></div>
       <div id="spOff">
         <p class="hint">شارك مصاريفك مع شخص تاني: أي مصروف يضيفه حد فيكم يظهر عند التاني لوحده. محتاج إنترنت للمزامنة.</p>
-        <button class="btn primary" id="spCreate" style="margin-top:12px;width:100%">إنشاء مساحة</button>
-        <button class="btn" id="spJoin" style="margin-top:8px;width:100%">عندي كود، انضمام</button>
+        <div class="sp-row" style="margin-top:12px"><button class="btn primary" id="spCreate">إنشاء مساحة</button><button class="btn" id="spJoin">انضمام بكود</button></div>
       </div>
       <div id="spOn" hidden>
         <p class="hint">كود المساحة. ابعته للشخص التاني عشان ينضم.</p>
         <div class="sp-code" id="spCode"></div>
-        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><button class="btn" id="spUpload">رفع مصاريفي القديمة</button></div>
+        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>رفع المصاريف القديمة تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="رفع المصاريف القديمة تلقائيًا"><i></i></label></div></div>
+        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>رفع مصاريفي القديمة</button>
         <p class="hint" id="spInfo" style="margin-top:10px"></p>
         <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
       </div>
@@ -1108,7 +1109,6 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
   </div>
   <label class="wl-lab" for="spName" style="margin-top:12px">اسمك في المساحة</label>
   <div class="field"><input id="spName" type="text" maxlength="24" placeholder="مثلاً هشام"></div>
-  <div class="set-row" id="spOldWrap"><div class="txt">شارك مصاريفي الحالية<small>لو قفلته، مصاريفك القديمة تفضل عندك بس، والجديدة بتتشارك</small></div><label class="switch"><input type="checkbox" id="spOld" aria-label="مشاركة المصاريف الحالية"><i></i></label></div>
   <p class="err-msg" id="spErr"></p>
   <div class="sheet-actions"><button class="btn primary" id="spGo">إنشاء</button><button class="btn" id="spCancel">إلغاء</button></div>
 </div>
@@ -1760,7 +1760,7 @@ function openSheet(id,pre){
 }
 function closeSheets(){
   closePayMenu();
-  $('#scrim').classList.remove('open');$('#sheet').classList.remove('open');$('#pinSheet').classList.remove('open');$('#expSheet').classList.remove('open');$('#catSheet').classList.remove('open');['debtSheet','paySheet','gamSheet','wipeSheet','formSheet','timeSheet','pctSheet','dateSheet'].forEach(i=>$('#'+i).classList.remove('open'));
+  $('#scrim').classList.remove('open');$('#sheet').classList.remove('open');$('#pinSheet').classList.remove('open');$('#expSheet').classList.remove('open');$('#catSheet').classList.remove('open');['debtSheet','paySheet','gamSheet','wipeSheet','formSheet','timeSheet','pctSheet','dateSheet','spSheet'].forEach(i=>$('#'+i).classList.remove('open'));
   $('#noteInput').blur();$('#catName').blur();amtIn.blur();
   if(pinMode){pinMode=null;$('#pinToggle').checked=!!S.pin}
 }
@@ -2928,7 +2928,9 @@ function renderSpace(){
   const on=!!S.space; $('#spOff').hidden=on; $('#spOn').hidden=!on; $('#wipeSpNote').hidden=!on;
   const st={on:'متصل',sync:'بيتزامن...',off:'أوفلاين',err:'مشكلة في الاتصال',denied:'مش مسموح'};
   $('#spStatus').textContent=on?(st[spSt]||''):'';
-  if(on){$('#spCode').textContent=spFmt(S.space.code);
+  if(on){const oldSet=new Set(S.space.old||[]), priv=S.expenses.filter(e=>!e.sp&&oldSet.has(e.id)).length, up=$('#spUpload');
+    $('#spAuto').checked=!!S.space.auto; up.hidden=!!S.space.auto||!priv; up.dataset.idle=`رفع مصاريفي القديمة (${priv})`; if(!up.dataset.arm) up.textContent=up.dataset.idle;
+    $('#spCode').textContent=spFmt(S.space.code);
     $('#spInfo').textContent=(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'اتفصلت من المساحة. اخرج منها وانضم تاني بالكود.':'أي مصروف جديد بتضيفه بيظهر عند الباقيين.')}
 }
 function spQueue(){if(!S.space) return; clearTimeout(spTimer); spTimer=setTimeout(spPush,700)}
@@ -2983,7 +2985,7 @@ function openSpSheet(mode){
   spMode=mode; $('#spTitle').textContent=mode==='create'?'إنشاء مساحة مشتركة':'الانضمام لمساحة';
   $('#spCodeWrap').hidden=mode!=='join'; $('#spGo').textContent=mode==='create'?'إنشاء':'انضمام';
   $('#spName').value=(S.profile&&S.profile.name)||''; $('#spCodeIn').value=''; $('#spErr').textContent='';
-  $('#spOldWrap').hidden=!S.expenses.length; $('#spOld').checked=false; openSheetEl('spSheet');
+  openSheetEl('spSheet');
 }
 $('#spCreate').onclick=()=>openSpSheet('create');
 $('#spJoin').onclick=()=>openSpSheet('join');
@@ -2998,20 +3000,22 @@ $('#spGo').onclick=async()=>{
     if(spMode==='create'){code=spGen(); await withTimeout(F.setDoc(F.doc(db,'spaces',code),{owner:f.uid,memberIds:[f.uid],createdAt:F.serverTimestamp()}),12000)}
     else{const ref=F.doc(db,'spaces',code), snap=await withTimeout(F.getDoc(ref),12000); if(!snap.exists()) throw {code:'nf'};
       const ids=(snap.data().memberIds)||[]; if(!ids.includes(f.uid)){if(ids.length>=5) throw {code:'full'}; await withTimeout(F.updateDoc(ref,{memberIds:F.arrayUnion(f.uid)}),12000)}}
-    S.space={code,uid:f.uid,name,old:($('#spOld').checked||!S.expenses.length)?[]:S.expenses.map(e=>e.id)};
+    S.space={code,uid:f.uid,name,auto:false,old:S.expenses.map(e=>e.id)};
     save(); closeSheets(); renderSpace(); spListen();
     toast(spMode==='create'?'اتعملت المساحة. ابعت الكود لصاحبك':'انضميت للمساحة');
   }catch(e){$('#spErr').textContent=spErrMsg(e)} finally{btn.disabled=false;btn.textContent=t0}
 };
-function armBtn(b,idle,confirmTxt,fn){b.onclick=()=>{
-  if(!b.dataset.arm){b.dataset.arm='1';b.textContent=confirmTxt;clearTimeout(b._t);b._t=setTimeout(()=>{delete b.dataset.arm;b.textContent=idle},4000);return}
-  delete b.dataset.arm;clearTimeout(b._t);b.textContent=idle;fn()}}
+function armBtn(b,idle,confirmTxt,fn){const id=()=>b.dataset.idle||idle; b.onclick=()=>{
+  if(!b.dataset.arm){b.dataset.arm='1';b.textContent=confirmTxt;clearTimeout(b._t);b._t=setTimeout(()=>{delete b.dataset.arm;b.textContent=id()},4000);return}
+  delete b.dataset.arm;clearTimeout(b._t);b.textContent=id();fn()}}
 armBtn($('#spLeave'),'الخروج من المساحة','دوس تاني للتأكيد',async()=>{
   const code=S.space&&S.space.code, f=fb; spStop();
   if(f&&code){try{await withTimeout(f.F.updateDoc(f.F.doc(f.db,'spaces',code),{memberIds:f.F.arrayRemove(f.uid)}),6000)}catch(e){}}
   S.expenses.forEach(e=>{delete e.sp}); S.space=null; save(); renderSpace(); renderAll(); toast('خرجت من المساحة. مصاريفك فضلت عندك');
 });
-armBtn($('#spUpload'),'رفع مصاريفي القديمة','دوس تاني للتأكيد',()=>{if(!S.space) return; S.space.old=[]; save(); spPush(); toast('بنرفع مصاريفك القديمة للمساحة')});
+armBtn($('#spUpload'),'رفع مصاريفي القديمة','دوس تاني للتأكيد',()=>{if(!S.space) return; S.space.old=[]; save(); spPush(); renderSpace(); toast('بنرفع مصاريفك القديمة للمساحة')});
+$('#spAuto').onchange=e=>{if(!S.space) return; S.space.auto=e.target.checked;
+  if(S.space.auto){S.space.old=[]; save(); spPush(); toast('هيترفعوا مصاريفك القديمة تلقائيًا')} else {save(); toast('اتقفل الرفع التلقائي')} renderSpace()};
 $('#spCopy').onclick=async()=>{const c=spFmt(S.space.code);
   try{await navigator.clipboard.writeText(c)}catch(e){const t=document.createElement('textarea');t.value=c;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove()}
   toast('اتنسخ الكود: '+c)};
