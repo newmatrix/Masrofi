@@ -41,6 +41,10 @@
 :root[data-style="paper"][data-theme="dark"]{--bg:#17130E;--surface:#221C15;--surface-2:#2E261D;--ink:#EFE6D6;--muted:#A8998A;--line:rgba(239,230,214,.12);--shadow:0 1px 2px rgba(0,0,0,.35);--r-card:22px;--r-hero:26px}
 :root[data-style="ocean"][data-theme="light"]{--bg:#EAF3F8;--surface:#FFFFFF;--surface-2:#DCEAF2;--ink:#0B2A3C;--muted:#52707F;--line:rgba(11,42,60,.10);--shadow:0 1px 2px rgba(11,42,60,.06),0 8px 24px rgba(11,42,60,.07);--r-card:24px;--r-hero:28px}
 :root[data-style="ocean"][data-theme="dark"]{--bg:#07141D;--surface:#0E2230;--surface-2:#153042;--ink:#E4F0F6;--muted:#8FAEBD;--line:rgba(228,240,246,.12);--shadow:0 1px 2px rgba(0,0,0,.35);--r-card:24px;--r-hero:28px}
+.sp-code{font-size:1.7rem;font-weight:700;letter-spacing:.12em;text-align:center;direction:ltr;color:var(--brand);background:var(--surface-2);border-radius:14px;padding:14px 8px;margin:10px 0;user-select:all;-webkit-user-select:all}
+.sp-row{display:flex;gap:8px;margin-top:8px}
+.sp-row .btn{flex:1}
+.xby{color:var(--brand)}
 .style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
 .sty{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:6px 6px 8px;border:1.5px solid transparent;border-radius:14px;background:var(--surface-2);cursor:pointer;transition:transform .12s,border-color .2s}
 .sty:active{transform:scale(.96)}
@@ -849,6 +853,22 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
       <button class="btn add-cat" id="addPay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>إضافة طريقة دفع</button>
     </div>
 
+    <div class="card" id="spaceCard">
+      <div class="card-h"><h3>مساحة مشتركة</h3><span class="hint" id="spStatus"></span></div>
+      <div id="spOff">
+        <p class="hint">شارك مصاريفك مع شخص تاني: أي مصروف يضيفه حد فيكم يظهر عند التاني لوحده. محتاج إنترنت للمزامنة.</p>
+        <button class="btn primary" id="spCreate" style="margin-top:12px;width:100%">إنشاء مساحة</button>
+        <button class="btn" id="spJoin" style="margin-top:8px;width:100%">عندي كود، انضمام</button>
+      </div>
+      <div id="spOn" hidden>
+        <p class="hint">كود المساحة. ابعته للشخص التاني عشان ينضم.</p>
+        <div class="sp-code" id="spCode"></div>
+        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><button class="btn" id="spUpload">رفع مصاريفي القديمة</button></div>
+        <p class="hint" id="spInfo" style="margin-top:10px"></p>
+        <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
+      </div>
+    </div>
+
     <div class="card">
       <h3>التنبيهات</h3>
       <p class="hint" id="alertsHint"></p>
@@ -1035,6 +1055,7 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
   <div class="wipe-ico">🗑️</div>
   <h2 id="wipeTitle">تمسح المصاريف والالتزامات؟</h2>
   <p class="hint center">هيتمسح كل المصاريف والسلف والجمعيات. بياناتك وصورتك ومصادر الدخل وأهداف الادخار والميزانية والفئات والإعدادات هيفضلوا زي ما هم.</p>
+  <p class="hint" id="wipeSpNote" hidden>إنت في مساحة مشتركة: هتخرج منها، ومصاريف الطرف التاني مش هتتمسح.</p>
   <div class="sheet-actions" style="margin-top:18px"><button class="btn danger-solid" id="wipeConfirm">امسح</button><button class="btn" id="wipeCancel">إلغاء</button></div>
 </div>
 
@@ -1075,6 +1096,21 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
   <div class="pct-presets" id="pctPresets"><button type="button" data-p="50">50%</button><button type="button" data-p="70">70%</button><button type="button" data-p="80">80%</button><button type="button" data-p="90">90%</button></div>
   <p class="hint center" id="pctEx"></p>
   <div class="sheet-actions"><button class="btn primary" id="pctSave">حفظ</button><button class="btn" id="pctCancel">إلغاء</button></div>
+</div>
+
+<!-- Shared space sheet -->
+<div class="sheet" id="spSheet" role="dialog" aria-modal="true" aria-labelledby="spTitle">
+  <div class="grab"></div>
+  <h2 id="spTitle">مساحة مشتركة</h2>
+  <div id="spCodeWrap" hidden>
+    <label class="wl-lab" for="spCodeIn">كود المساحة</label>
+    <div class="field"><input id="spCodeIn" type="text" dir="ltr" maxlength="12" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="XXXXX-XXXXX" style="text-align:center;letter-spacing:.1em"></div>
+  </div>
+  <label class="wl-lab" for="spName" style="margin-top:12px">اسمك في المساحة</label>
+  <div class="field"><input id="spName" type="text" maxlength="24" placeholder="مثلاً هشام"></div>
+  <div class="set-row" id="spOldWrap"><div class="txt">شارك مصاريفي الحالية<small>لو قفلته، مصاريفك القديمة تفضل عندك بس، والجديدة بتتشارك</small></div><label class="switch"><input type="checkbox" id="spOld" aria-label="مشاركة المصاريف الحالية"><i></i></label></div>
+  <p class="err-msg" id="spErr"></p>
+  <div class="sheet-actions"><button class="btn primary" id="spGo">إنشاء</button><button class="btn" id="spCancel">إلغاء</button></div>
 </div>
 
 <!-- Category sheet -->
@@ -1179,7 +1215,7 @@ let S = {expenses:[], budget:0, theme:'system', pin:null, lastBackup:null};
 try{const raw=lsGet(KEY); if(raw){S=Object.assign(S,JSON.parse(raw))}}catch(e){}
 const AB = window.AndroidBridge || null;
 let syncT;
-function save(){lsSet(KEY,JSON.stringify(S)); if(AB){clearTimeout(syncT);syncT=setTimeout(()=>{try{syncNative()}catch(e){}},800)}}
+function save(){lsSet(KEY,JSON.stringify(S)); if(S.space) spQueue(); if(AB){clearTimeout(syncT);syncT=setTimeout(()=>{try{syncNative()}catch(e){}},800)}}
 function syncCats(){
   if(!Array.isArray(S.cats)||!S.cats.length) S.cats=CATS.map(c=>({...c}));
   if(!S.cats.some(c=>c.id==='other')) S.cats.push({...CATS[CATS.length-1]});
@@ -1303,6 +1339,7 @@ function itemRow(x){
     <div class="tile">${c.e}</div>
     <div class="body">
       <div class="title">${esc(c.name)}: <span class="val">${money(x.amount)} <small>${CS()}</small></span></div>
+      ${(x.byName&&x.by&&x.by!==spMe())?`<div class="xnote xby">👤 ${esc(x.byName)}</div>`:''}
       ${x.note?`<div class="xnote">${esc(x.note)}</div>`:''}
       <div class="time">${timeStr(x.ts)}<span class="pm" title="${esc(PAY[payOf(x)].name)}">· ${PAY[payOf(x)].e}</span></div>
     </div>
@@ -1530,6 +1567,7 @@ $('#searchBack').onclick=()=>showSub('main');
 
 /* Settings */
 function renderSettings(){
+  renderSpace();
   applyTheme();
   renderCatList();
   renderPayList();
@@ -1912,6 +1950,7 @@ function checkAlerts(){
 $('#wipeBtn').onclick=()=>{$('#scrim').classList.add('open');$('#wipeSheet').classList.add('open')};
 $('#wipeCancel').onclick=()=>closeSheets();
 $('#wipeConfirm').onclick=()=>{
+  if(S.space) spDetach();
   // بيمسح المصاريف والسلف والجمعيات بس، وبيانات "أنا" والفئات والإعدادات بتفضل زي ما هي
   const keys=['expenses','debts','gams','alerted','dueSeen'];
   const old=JSON.parse(JSON.stringify(keys.reduce((o,k)=>(o[k]=S[k],o),{})));
@@ -2099,6 +2138,7 @@ let db=null, myId=null;
 async function backupDoc(){return db.collection('data/users/'+myId).doc('backup')}
 const backupData=()=>({expenses:S.expenses,budget:S.budget,budgetMode:S.budgetMode,payday:S.payday,cats:S.cats,debts:S.debts,gams:S.gams,profile:S.profile,since:S.since,incomes:S.incomes,goals:S.goals,saveTarget:S.saveTarget,currency:S.currency,fixed:S.fixed,fixedLog:S.fixedLog,pays:S.pays,lastPay:S.lastPay,prefs:{theme:S.theme,accent:S.accent,style:S.style,alert80:S.alert80,alertPct:S.alertPct,remind:S.remind,remindAt:S.remindAt,dueRemind:S.dueRemind,backupRemind:S.backupRemind}});
 function applyBackup(p,at){
+  if(S.space) spDetach();
   const old={e:S.expenses,b:S.budget,c:S.cats,m:S.budgetMode,d:S.debts,g:S.gams,pd:S.payday,pr:S.profile,si:S.since,inc:S.incomes,go:S.goals,st:S.saveTarget,cu:S.currency,fx:S.fixed,fl:S.fixedLog,py:S.pays,lp:S.lastPay,pf:{theme:S.theme,accent:S.accent,style:S.style,alert80:S.alert80,alertPct:S.alertPct,remind:S.remind,remindAt:S.remindAt,dueRemind:S.dueRemind,backupRemind:S.backupRemind}};
   S.expenses=(Array.isArray(p.expenses)?p.expenses:[]).filter(x=>x&&isFinite(+x.amount)&&+x.amount>0&&isFinite(+x.ts)).map(x=>({...x,amount:+x.amount,ts:+x.ts,id:x.id||uid()}));
   if(p.budget!==undefined) S.budget=+p.budget||0;
@@ -2855,10 +2895,133 @@ $('#wlDone').onclick=()=>{
   toast(name? `أهلاً ${name.split(' ')[0]} 👋` : 'جاهز! ضيف أول مصروف 👋');
 };
 
+/* ===== Shared space (Firebase Firestore) ===== */
+const FB_CFG={apiKey:"AIzaSyDU1ZaGA4zyRxnW4M43gnncok8Hbx5_Rtg",authDomain:"masrofi-871f8.firebaseapp.com",projectId:"masrofi-871f8",storageBucket:"masrofi-871f8.firebasestorage.app",messagingSenderId:"397801365011",appId:"1:397801365011:web:8e972a632a4e4f3d6de9e6"};
+const SP_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+let fbP=null, fb=null, spUnsub=null, spUnsubM=null, spTimer=null, spHash={}, spReady=false, spMembers=0, spSt='off', spMode='create';
+const spMe=()=>(fb&&fb.uid)||(S.space&&S.space.uid)||'';
+const hashE=e=>JSON.stringify([+e.amount,e.cat,e.note||'',e.pay||'',+e.ts]);
+const spFmt=c=>String(c||'').replace(/^(.{5})(.{5})$/,'$1-$2');
+const spNorm=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const spGen=()=>{const a=new Uint32Array(10);crypto.getRandomValues(a);return Array.from(a,x=>SP_ABC[x%32]).join('')};
+const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no({code:'timeout'}),ms))]);
+function spErrMsg(e){const c=e&&e.code;
+  return c==='nf'?'الكود ده مش موجود، اتأكد منه':c==='full'?'المساحة دي اكتملت (5 أعضاء)':
+  (c==='timeout'||c==='unavailable')?'مفيش اتصال بالسيرفر. اتأكد من الإنترنت وجرب تاني':
+  c==='permission-denied'?'السيرفر رفض الطلب. اتأكد إن قواعد Firestore اتنشرت':
+  (c==='auth/operation-not-allowed'||c==='auth/admin-restricted-operation')?'فعّل الدخول المجهول (Anonymous) من Firebase Authentication':'حصلت مشكلة، جرب تاني'}
+function fbInit(){
+  if(fbP) return fbP;
+  fbP=loadScript('libs/fb.js').then(async()=>{
+    const F=window.FB, app=F.initializeApp(FB_CFG);
+    const auth=F.initializeAuth(app,{persistence:[F.indexedDBLocalPersistence,F.browserLocalPersistence]});
+    let db; try{db=F.initializeFirestore(app,{localCache:F.persistentLocalCache({tabManager:F.persistentSingleTabManager(undefined)}),experimentalAutoDetectLongPolling:true})}
+    catch(e){db=F.initializeFirestore(app,{localCache:F.memoryLocalCache(),experimentalAutoDetectLongPolling:true})}
+    await new Promise(res=>{const un=F.onAuthStateChanged(auth,()=>{un();res()})});
+    if(!auth.currentUser) await F.signInAnonymously(auth);
+    fb={F,db,auth,uid:auth.currentUser.uid}; return fb;
+  }).catch(e=>{fbP=null;throw e});
+  return fbP;
+}
+function spSetStatus(s){spSt=s;renderSpace()}
+function renderSpace(){
+  const on=!!S.space; $('#spOff').hidden=on; $('#spOn').hidden=!on; $('#wipeSpNote').hidden=!on;
+  const st={on:'متصل',sync:'بيتزامن...',off:'أوفلاين',err:'مشكلة في الاتصال',denied:'مش مسموح'};
+  $('#spStatus').textContent=on?(st[spSt]||''):'';
+  if(on){$('#spCode').textContent=spFmt(S.space.code);
+    $('#spInfo').textContent=(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'اتفصلت من المساحة. اخرج منها وانضم تاني بالكود.':'أي مصروف جديد بتضيفه بيظهر عند الباقيين.')}
+}
+function spQueue(){if(!S.space) return; clearTimeout(spTimer); spTimer=setTimeout(spPush,700)}
+function spStop(){if(spUnsub){spUnsub();spUnsub=null} if(spUnsubM){spUnsubM();spUnsubM=null} spReady=false; spHash={}; clearTimeout(spTimer)}
+function spDetach(){if(!S.space) return; spStop(); S.expenses.forEach(e=>{delete e.sp}); S.space=null; renderSpace()}
+function spApply(snap){
+  const code=S.space.code; let changed=false;
+  snap.docChanges().forEach(ch=>{
+    const id=ch.doc.id, d=ch.doc.data()||{}, i=S.expenses.findIndex(e=>e.id===id);
+    if(d.del||ch.type==='removed'){ if(i>=0){S.expenses.splice(i,1);changed=true} delete spHash[id]; return }
+    const e={id,amount:+d.amount||0,cat:CAT[d.cat]?d.cat:'other',note:d.note||'',ts:+d.ts||Date.now(),sp:code,by:d.by,byName:d.byName}; if(d.pay) e.pay=d.pay;
+    const h=hashE(e);
+    if(i>=0&&hashE(S.expenses[i])===h){spHash[id]=h; if(!S.expenses[i].by){S.expenses[i].by=d.by;S.expenses[i].byName=d.byName;S.expenses[i].sp=code;changed=true} return}
+    if(i>=0) S.expenses[i]=e; else S.expenses.push(e);
+    spHash[id]=h; changed=true;
+  });
+  if(changed){save();renderAll();setTimeout(checkAlerts,500)}
+}
+function spPush(){
+  if(!S.space||!fb||!spReady) return;
+  const {F,db,uid}=fb, code=S.space.code, old=new Set(S.space.old||[]), nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
+  const writes=[], cur=new Set(); let assigned=false;
+  S.expenses.forEach(e=>{
+    if(!e.sp){ if(old.has(e.id)) return; e.sp=code; e.by=uid; e.byName=nm; assigned=true }
+    if(e.sp!==code) return;
+    cur.add(e.id); const h=hashE(e);
+    if(spHash[e.id]!==h) writes.push([e.id,{amount:+e.amount,cat:e.cat,note:String(e.note||'').slice(0,200),pay:e.pay||'',ts:+e.ts,by:e.by||uid,byName:String(e.byName||nm).slice(0,40),del:false,upd:F.serverTimestamp()},h]);
+  });
+  Object.keys(spHash).forEach(id=>{if(!cur.has(id)) writes.push([id,{del:true,upd:F.serverTimestamp()},null])});
+  if(assigned) lsSet(KEY,JSON.stringify(S));
+  for(let i=0;i<writes.length;i+=400){
+    const chunk=writes.slice(i,i+400), b=F.writeBatch(db);
+    chunk.forEach(([id,data])=>b.set(F.doc(db,'spaces',code,'expenses',id),data));
+    chunk.forEach(([id,,h])=>{if(h===null) delete spHash[id]; else spHash[id]=h});
+    b.commit().catch(e=>spSetStatus(e&&e.code==='permission-denied'?'denied':'err'));
+  }
+}
+async function spListen(){
+  if(!S.space||spUnsub) return;
+  spSetStatus('sync');
+  let f; try{f=await fbInit()}catch(e){spSetStatus('off');return}
+  if(!S.space||spUnsub) return;
+  spReady=false; spHash={};
+  const {F,db}=f, code=S.space.code;
+  spUnsub=F.onSnapshot(F.collection(db,'spaces',code,'expenses'),snap=>{
+    if(!S.space||S.space.code!==code) return;
+    spApply(snap); spReady=true; spSetStatus((snap.metadata.fromCache&&!navigator.onLine)?'off':'on'); spPush();
+  },err=>{spSetStatus(err&&err.code==='permission-denied'?'denied':'err')});
+  spUnsubM=F.onSnapshot(F.doc(db,'spaces',code),s=>{spMembers=((s.data()||{}).memberIds||[]).length;renderSpace()},()=>{});
+}
+function openSpSheet(mode){
+  spMode=mode; $('#spTitle').textContent=mode==='create'?'إنشاء مساحة مشتركة':'الانضمام لمساحة';
+  $('#spCodeWrap').hidden=mode!=='join'; $('#spGo').textContent=mode==='create'?'إنشاء':'انضمام';
+  $('#spName').value=(S.profile&&S.profile.name)||''; $('#spCodeIn').value=''; $('#spErr').textContent='';
+  $('#spOldWrap').hidden=!S.expenses.length; $('#spOld').checked=false; openSheetEl('spSheet');
+}
+$('#spCreate').onclick=()=>openSpSheet('create');
+$('#spJoin').onclick=()=>openSpSheet('join');
+$('#spCancel').onclick=closeSheets;
+$('#spGo').onclick=async()=>{
+  const btn=$('#spGo'); if(btn.disabled) return; $('#spErr').textContent='';
+  const name=$('#spName').value.trim().replace(/\s+/g,' ').slice(0,24); let code='';
+  if(spMode==='join'){code=spNorm($('#spCodeIn').value); if(!/^[A-HJ-NP-Z2-9]{10}$/.test(code)){$('#spErr').textContent='الكود لازم يكون 10 حروف وأرقام';return}}
+  btn.disabled=true; const t0=btn.textContent; btn.textContent='لحظة...';
+  try{
+    const f=await withTimeout(fbInit(),15000), {F,db}=f;
+    if(spMode==='create'){code=spGen(); await withTimeout(F.setDoc(F.doc(db,'spaces',code),{owner:f.uid,memberIds:[f.uid],createdAt:F.serverTimestamp()}),12000)}
+    else{const ref=F.doc(db,'spaces',code), snap=await withTimeout(F.getDoc(ref),12000); if(!snap.exists()) throw {code:'nf'};
+      const ids=(snap.data().memberIds)||[]; if(!ids.includes(f.uid)){if(ids.length>=5) throw {code:'full'}; await withTimeout(F.updateDoc(ref,{memberIds:F.arrayUnion(f.uid)}),12000)}}
+    S.space={code,uid:f.uid,name,old:($('#spOld').checked||!S.expenses.length)?[]:S.expenses.map(e=>e.id)};
+    save(); closeSheets(); renderSpace(); spListen();
+    toast(spMode==='create'?'اتعملت المساحة. ابعت الكود لصاحبك':'انضميت للمساحة');
+  }catch(e){$('#spErr').textContent=spErrMsg(e)} finally{btn.disabled=false;btn.textContent=t0}
+};
+function armBtn(b,idle,confirmTxt,fn){b.onclick=()=>{
+  if(!b.dataset.arm){b.dataset.arm='1';b.textContent=confirmTxt;clearTimeout(b._t);b._t=setTimeout(()=>{delete b.dataset.arm;b.textContent=idle},4000);return}
+  delete b.dataset.arm;clearTimeout(b._t);b.textContent=idle;fn()}}
+armBtn($('#spLeave'),'الخروج من المساحة','دوس تاني للتأكيد',async()=>{
+  const code=S.space&&S.space.code, f=fb; spStop();
+  if(f&&code){try{await withTimeout(f.F.updateDoc(f.F.doc(f.db,'spaces',code),{memberIds:f.F.arrayRemove(f.uid)}),6000)}catch(e){}}
+  S.expenses.forEach(e=>{delete e.sp}); S.space=null; save(); renderSpace(); renderAll(); toast('خرجت من المساحة. مصاريفك فضلت عندك');
+});
+armBtn($('#spUpload'),'رفع مصاريفي القديمة','دوس تاني للتأكيد',()=>{if(!S.space) return; S.space.old=[]; save(); spPush(); toast('بنرفع مصاريفك القديمة للمساحة')});
+$('#spCopy').onclick=async()=>{const c=spFmt(S.space.code);
+  try{await navigator.clipboard.writeText(c)}catch(e){const t=document.createElement('textarea');t.value=c;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove()}
+  toast('اتنسخ الكود: '+c)};
+window.addEventListener('online',()=>{if(S.space&&!spUnsub) spListen()});
+
 /* Boot */
 applyCurrency();applyTheme();renderAll();
 if(S.onboarded===undefined&&(S.expenses.length||S.budget>0||(S.profile&&(S.profile.name||S.profile.photo))||S.lastBackup||(S.debts||[]).length||(S.gams||[]).length||(S.fixed||[]).length||(S.incomes||[]).length||(S.goals||[]).length)){S.onboarded=true;save()}
 if(!S.onboarded) showWelcome();
+if(S.space) setTimeout(spListen,1500);
 setInterval(()=>{if(document.hidden) return; greet();checkRemind();checkDue()},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){greet();checkRemind();checkDue()}});setTimeout(checkRemind,1500);setTimeout(checkDue,3500);
 setInterval(()=>{if(!document.hidden&&dayKey(Date.now())!==window.__dk){window.__dk=dayKey(Date.now());renderHome()}},60000);window.__dk=dayKey(Date.now());
