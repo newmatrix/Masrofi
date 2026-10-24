@@ -421,7 +421,7 @@ button,.socials a,.month-card{transition:transform .15s cubic-bezier(.3,.7,.4,1.
 .tp-sep{position:relative;font-size:1.4rem;font-weight:700;color:var(--ink);padding-bottom:3px}
 .linkbtn:disabled{color:var(--muted)}
 .notif{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;width:min(480px,calc(100% - 20px));transform:translate(-50%,-160%);
-  background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:color-mix(in srgb,var(--surface) 97%,transparent);
   border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 44px rgba(0,0,0,.22);padding:13px 14px;display:flex;gap:12px;align-items:flex-start;z-index:95;
   transition:transform .45s cubic-bezier(.2,.9,.3,1.15)}
 .notif.show{transform:translate(-50%,0)}
@@ -489,7 +489,7 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
 .months{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;margin:14px 0 8px}
 .md{aspect-ratio:1;border-radius:11px;border:1.5px dashed var(--line);background:none;display:grid;place-items:center;font-size:.8rem;font-weight:700;color:var(--muted);padding:0;position:relative}
 .md.paid{border:0;background:#0E7490;color:#fff}
-.md.cur:not(.paid){border:2px solid #0E7490;color:#0E7490;animation:pulse 1.6s ease-out infinite;--pc:#0E7490}
+.md.cur:not(.paid){border:2px solid #0E7490;color:#0E7490;animation:pulse 1.6s ease-out 3;--pc:#0E7490}
 .md.turn::after{content:"★";position:absolute;top:-7px;left:-5px;font-size:.75rem;color:var(--gold)}
 .md:disabled{opacity:.55}
 .glegend{display:flex;gap:12px;flex-wrap:wrap;font-size:.76rem;color:var(--muted)}
@@ -2859,8 +2859,9 @@ $('#wlDone').onclick=()=>{
 applyCurrency();applyTheme();renderAll();
 if(S.onboarded===undefined&&(S.expenses.length||S.budget>0||(S.profile&&(S.profile.name||S.profile.photo))||S.lastBackup||(S.debts||[]).length||(S.gams||[]).length||(S.fixed||[]).length||(S.incomes||[]).length||(S.goals||[]).length)){S.onboarded=true;save()}
 if(!S.onboarded) showWelcome();
-setInterval(()=>{greet();checkRemind();checkDue()},30000);setTimeout(checkRemind,1500);setTimeout(checkDue,3500);
-setInterval(()=>{if(dayKey(Date.now())!==window.__dk){window.__dk=dayKey(Date.now());renderHome()}},60000);window.__dk=dayKey(Date.now());
+setInterval(()=>{if(document.hidden) return; greet();checkRemind();checkDue()},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){greet();checkRemind();checkDue()}});setTimeout(checkRemind,1500);setTimeout(checkDue,3500);
+setInterval(()=>{if(!document.hidden&&dayKey(Date.now())!==window.__dk){window.__dk=dayKey(Date.now());renderHome()}},60000);window.__dk=dayKey(Date.now());
 (async()=>{
   if(AB){ syncNative(); return }
   if(!window.claude||!window.claude.use){$('#exportHint').textContent='حفظ الملفات بيشتغل لما تفتح التطبيق من الرابط المنشور.';return}
