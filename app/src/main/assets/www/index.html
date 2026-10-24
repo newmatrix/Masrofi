@@ -857,14 +857,14 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
     <div class="card" id="spaceCard">
       <div class="card-h"><h3>مساحة مشتركة</h3><span class="hint" id="spStatus"></span></div>
       <div id="spOff">
-        <p class="hint">شارك مصاريفك مع شخص تاني: أي مصروف يضيفه حد فيكم يظهر عند التاني لوحده. محتاج إنترنت للمزامنة.</p>
+        <p class="hint">شارك مصاريفك مع شخص تاني. كل طرف يقدر يشغل المشاركة التلقائية لمصاريفه، أو يرفعها يدويًا. محتاج إنترنت للمزامنة.</p>
         <div class="sp-row" style="margin-top:12px"><button class="btn primary" id="spCreate">إنشاء مساحة</button><button class="btn" id="spJoin">انضمام بكود</button></div>
       </div>
       <div id="spOn" hidden>
         <p class="hint">كود المساحة. ابعته للشخص التاني عشان ينضم.</p>
         <div class="sp-code" id="spCode"></div>
-        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>رفع المصاريف القديمة تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="رفع المصاريف القديمة تلقائيًا"><i></i></label></div></div>
-        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>رفع مصاريفي القديمة</button>
+        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>مشاركة مصاريفي تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="مشاركة المصاريف تلقائيًا"><i></i></label></div></div>
+        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>مشاركة مصاريفي يدويًا</button>
         <p class="hint" id="spInfo" style="margin-top:10px"></p>
         <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
       </div>
@@ -2928,10 +2928,10 @@ function renderSpace(){
   const on=!!S.space; $('#spOff').hidden=on; $('#spOn').hidden=!on; $('#wipeSpNote').hidden=!on;
   const st={on:'متصل',sync:'بيتزامن...',off:'أوفلاين',err:'مشكلة في الاتصال',denied:'مش مسموح'};
   $('#spStatus').textContent=on?(st[spSt]||''):'';
-  if(on){const oldSet=new Set(S.space.old||[]), priv=S.expenses.filter(e=>!e.sp&&oldSet.has(e.id)&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).length, up=$('#spUpload');
-    $('#spAuto').checked=!!S.space.auto; up.hidden=!!S.space.auto||!priv; up.dataset.idle=`مشاركة مصاريفي القديمة (${priv})`; if(!up.dataset.arm) up.textContent=up.dataset.idle;
-    $('#spCode').textContent=spFmt(S.space.code);
-    $('#spInfo').textContent=(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'اتفصلت من المساحة. اخرج منها وانضم تاني بالكود.':'أي مصروف جديد بتضيفه بيظهر عند الباقيين.')}
+  if(on){const code=S.space.code, priv=S.expenses.filter(e=>!e.sp&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).length, up=$('#spUpload');
+    $('#spAuto').checked=!!S.space.auto; up.hidden=!!S.space.auto||!priv; up.dataset.idle=`مشاركة مصاريفي يدويًا (${priv})`; if(!up.dataset.arm) up.textContent=up.dataset.idle;
+    $('#spCode').textContent=spFmt(code);
+    $('#spInfo').textContent=(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'اتفصلت من المساحة. اخرج منها وانضم تاني بالكود.':S.space.auto?'المصاريف الجديدة والقديمة غير المشتركة بتظهر عند باقي الأعضاء تلقائيًا.':'المشاركة التلقائية متوقفة؛ المصاريف الجديدة خاصة بجهازك حتى تشاركها يدويًا.')}
 }
 function spQueue(){if(!S.space) return; clearTimeout(spTimer); spTimer=setTimeout(spPush,700)}
 function spStop(){if(spUnsub){spUnsub();spUnsub=null} if(spUnsubM){spUnsubM();spUnsubM=null} spReady=false; spHash={}; clearTimeout(spTimer)}
@@ -2964,14 +2964,15 @@ async function spPush(){
   spPushBusy=true;
   const {F,db,uid}=fb, code=S.space.code;
   try{
-    const old=new Set(S.space.old||[]), manual=new Set(S.space.manual||[]), nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
+    const manual=new Set(S.space.manual||[]), nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
     const writes=[], cur=new Set();
     S.expenses.forEach(e=>{
-      const isOld=old.has(e.id), serverKnown=Object.prototype.hasOwnProperty.call(spHash,e.id);
+      const serverKnown=Object.prototype.hasOwnProperty.call(spHash,e.id);
       if(e.sp&&e.sp!==code) return;
-      if(isOld&&!serverKnown&&!S.space.auto&&!manual.has(e.id)) return;
+      // Every local-only expense (old or newly added) stays private unless auto-share is on or the user explicitly selects manual sharing.
+      if(!serverKnown&&!e.sp&&!S.space.auto&&!manual.has(e.id)) return;
       // Do not resurrect a legacy locally-marked record if it is absent from the space snapshot.
-      if(e.sp===code&&!serverKnown&&!isOld) return;
+      if(e.sp===code&&!serverKnown) return;
       cur.add(e.id); const h=hashE(e);
       if(spHash[e.id]!==h) writes.push([e.id,{amount:+e.amount,cat:e.cat,note:String(e.note||'').slice(0,200),pay:e.pay||'',ts:+e.ts,by:e.by||uid,byName:String(e.byName||nm).slice(0,40),del:false,upd:F.serverTimestamp()},h]);
     });
@@ -3046,15 +3047,15 @@ armBtn($('#spLeave'),'الخروج من المساحة','دوس تاني للت�
   if(f&&code){try{await withTimeout(f.F.updateDoc(f.F.doc(f.db,'spaces',code),{memberIds:f.F.arrayRemove(f.uid)}),6000)}catch(e){}}
   S.expenses.forEach(e=>{delete e.sp}); S.space=null; save(); renderSpace(); renderAll(); toast('خرجت من المساحة. مصاريفك فضلت عندك');
 });
-armBtn($('#spUpload'),'مشاركة مصاريفي القديمة','دوس تاني للتأكيد',()=>{
+armBtn($('#spUpload'),'مشاركة مصاريفي يدويًا','دوس تاني للتأكيد',()=>{
   if(!S.space) return;
-  const pending=(S.space.old||[]).filter(id=>S.expenses.some(e=>e.id===id)&&!Object.prototype.hasOwnProperty.call(spHash,id));
+  const code=S.space.code, pending=S.expenses.filter(e=>!e.sp&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).map(e=>e.id);
   S.space.manual=Array.from(new Set([...(S.space.manual||[]),...pending]));
-  save(); spPush(); renderSpace(); toast('بنرفع مصاريفك القديمة للمساحة');
+  save(); spPush(); renderSpace(); toast('بنشارك المصاريف المحددة للمساحة');
 });
 $('#spAuto').onchange=e=>{if(!S.space) return; S.space.auto=e.target.checked;
   save(); spPush();
-  toast(S.space.auto?'هيترفعوا المصاريف القديمة تلقائيًا':'اتقفل الرفع التلقائي؛ المصاريف اللي اترفعِت هتفضل مشتركة');
+  toast(S.space.auto?'المشاركة التلقائية مفعلة للمصاريف القديمة والجديدة':'اتوقفت المشاركة التلقائية؛ المصاريف المشتركة تفضل مشتركة والجديدة تبقى خاصة');
   renderSpace();
 };
 $('#spCopy').onclick=async()=>{const c=spFmt(S.space.code);
