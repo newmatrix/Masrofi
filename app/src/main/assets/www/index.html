@@ -188,18 +188,22 @@ button{cursor:pointer}
 
 /* Settings */
 
-.sp-type-list{margin-top:8px}
-.sp-setup-prefs{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
-.sp-setup-prefs h3{margin:0;font-size:.98rem}
-.sp-setup-prefs>.hint{margin:5px 0 0;font-size:.82rem}
-.sp-type-row{display:flex;align-items:center;gap:10px;padding:12px 2px;border-top:1px solid var(--line);cursor:pointer}
+.sp-type-list{margin-top:6px}
+.sp-setup-prefs{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.sp-setup-prefs h3{margin:0;font-size:.95rem}
+.sp-setup-prefs>.hint{margin:3px 0 0;font-size:.78rem;line-height:1.35}
+.sp-type-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-top:1px solid var(--line);cursor:pointer}
 .sp-type-row:first-child{border-top:0}
-.sp-type-row .sp-ti{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);font-size:1.12rem}
+.sp-type-row .sp-ti{width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);font-size:1rem}
 .sp-type-row .sp-tt{flex:1;min-width:0}
-.sp-type-row .sp-tt b{display:block;font-size:.94rem}
-.sp-type-row .sp-tt small{display:block;color:var(--muted);font-size:.78rem;line-height:1.45;margin-top:2px}
-.sp-type-row .sp-count{display:block;color:var(--muted);font-size:.73rem;margin-top:3px}
-.sp-type-row .switch{margin-inline-start:4px}
+.sp-type-row .sp-tt b{display:block;font-size:.88rem;line-height:1.25}
+.sp-type-row .sp-tt small{display:block;color:var(--muted);font-size:.72rem;line-height:1.3;margin-top:1px}
+.sp-type-row .sp-count{display:block;color:var(--muted);font-size:.67rem;margin-top:1px}
+.sp-type-row .switch{width:46px;height:27px;margin-inline-start:2px}
+.sp-type-row .switch i::after{top:3px;right:3px;width:19px;height:19px}
+.sp-type-row .switch input:checked + i::after{transform:translateX(-19px)}
+.sp-setup-prefs .sp-count{display:none}
+.sp-setup-prefs .sp-share-note{margin-top:6px;padding:7px 9px;font-size:.73rem;line-height:1.4}
 .sp-share-note{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:.8rem;line-height:1.55}
 .sp-save-prefs{width:100%;margin-top:12px}
 .sp-shared-data{margin-top:10px}
@@ -1161,15 +1165,15 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
 <div class="sheet" id="spSheet" role="dialog" aria-modal="true" aria-labelledby="spTitle">
   <div class="grab"></div>
   <h2 id="spTitle">مساحة مشتركة</h2>
-  <div id="spCodeWrap" hidden>
-    <label class="wl-lab" for="spCodeIn">كود المساحة</label>
-    <div class="field"><input id="spCodeIn" type="text" dir="ltr" maxlength="12" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="XXXXX-XXXXX" style="text-align:center;letter-spacing:.1em"></div>
-  </div>
   <div class="sp-setup-prefs" id="spSetupPrefs">
     <h3 id="spSetupTitle">اختيارات المشاركة</h3>
     <p class="hint" id="spSetupIntro">حدد أنواع البيانات التي توافق على مشاركتها.</p>
     <div id="spSetupTypeList" class="sp-type-list"></div>
     <p class="sp-share-note">الأنواع اللي انت حددتها بس هي اللي هتظهر للطرف التاني. وأي نوع هتعطل مشاركته بعد كده هتفضل البيانات القديمة ظاهرة للطرف التاني.</p>
+  </div>
+  <div id="spCodeWrap" hidden>
+    <label class="wl-lab" for="spCodeIn">كود المساحة</label>
+    <div class="field"><input id="spCodeIn" type="text" dir="ltr" maxlength="12" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="XXXXX-XXXXX" style="text-align:center;letter-spacing:.1em"></div>
   </div>
   <label class="wl-lab" for="spName" style="margin-top:12px">اسمك في المساحة</label>
   <div class="field"><input id="spName" type="text" maxlength="24" placeholder="مثلاً محمد"></div>
