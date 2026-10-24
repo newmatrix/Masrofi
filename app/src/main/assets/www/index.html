@@ -187,6 +187,34 @@ button{cursor:pointer}
 .day-h span:last-child{color:var(--muted);font-weight:500}
 
 /* Settings */
+
+.sp-type-list{margin-top:8px}
+.sp-type-row{display:flex;align-items:center;gap:10px;padding:12px 2px;border-top:1px solid var(--line);cursor:pointer}
+.sp-type-row:first-child{border-top:0}
+.sp-type-row .sp-ti{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);font-size:1.12rem}
+.sp-type-row .sp-tt{flex:1;min-width:0}
+.sp-type-row .sp-tt b{display:block;font-size:.94rem}
+.sp-type-row .sp-tt small{display:block;color:var(--muted);font-size:.78rem;line-height:1.45;margin-top:2px}
+.sp-type-row .sp-count{display:block;color:var(--muted);font-size:.73rem;margin-top:3px}
+.sp-type-row input{width:20px;height:20px;flex:none;accent-color:var(--brand)}
+.sp-share-note{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:.8rem;line-height:1.55}
+.sp-save-prefs{width:100%;margin-top:12px}
+.sp-shared-data{margin-top:10px}
+.sp-share-group{border-top:1px solid var(--line);padding:10px 0}
+.sp-share-group:first-child{border-top:0}
+.sp-share-group summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;font-weight:700;list-style:none}
+.sp-share-group summary::-webkit-details-marker{display:none}
+.sp-share-group summary .n{font-size:.8rem;color:var(--muted);font-weight:500}
+.sp-share-record{padding:10px 0;border-top:1px solid var(--line);display:flex;gap:9px;align-items:flex-start}
+.sp-share-record:first-child{margin-top:8px}
+.sp-share-record .main{flex:1;min-width:0}
+.sp-share-record b{display:block;font-size:.9rem}
+.sp-share-record small{display:block;color:var(--muted);font-size:.78rem;line-height:1.45;margin-top:3px}
+.sp-share-record .amt{font-weight:700;white-space:nowrap;font-size:.86rem}
+.sp-owner-tag{color:var(--brand)!important}
+.sp-empty{padding:12px 0;color:var(--muted);font-size:.86rem}
+@media(max-width:380px){.nav button{font-size:.72rem;padding-inline:1px}.nav button .pill{padding-inline:11px}.nav button svg{width:21px;height:21px}}
+
 .set-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
 .set-row:first-of-type{border-top:0}
 .set-row .txt{flex:1}
@@ -827,6 +855,46 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
 
   </section>
 
+  <!-- المساحة المشتركة -->
+  <section class="view" id="v-space" aria-label="المساحة المشتركة">
+    <div class="topbar"><h1>المساحة المشتركة</h1></div>
+    <div class="card" id="spaceCard">
+      <div class="card-h"><h3>إدارة المساحة</h3><span class="hint" id="spStatus"></span></div>
+      <div id="spOff">
+        <p class="hint">أعمل مساحتك الخاصة أو انصم بكود. وأختار البيانات اللي عايز تشاركها</p>
+        <div class="sp-row" style="margin-top:12px"><button class="btn primary" id="spCreate">إنشاء مساحة</button><button class="btn" id="spJoin">انضمام بكود</button></div>
+      </div>
+      <div id="spWait" hidden>
+        <p class="hint" id="spWaitText"></p>
+        <button class="linkbtn wl-link" id="spCancelRequest">إلغاء الطلب</button>
+      </div>
+      <div id="spOn" hidden>
+        <p class="hint">كود المساحة. ابعته للشخص التاني عشان يرسل طلب انضمام، وموافقتك مطلوبة.</p>
+        <div class="sp-code" id="spCode"></div>
+        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>مشاركة المصاريف الجديدة تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="مشاركة المصاريف تلقائيًا"><i></i></label></div></div>
+        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>مشاركة مصاريفي يدويًا</button>
+        <p class="hint" id="spInfo" style="margin-top:10px"></p>
+        <div id="spReqWrap" hidden style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
+          <strong>طلبات الانضمام</strong>
+          <div id="spReqList" class="sp-req-list"></div>
+        </div>
+        <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
+      </div>
+    </div>
+    <div class="card" id="spPrefsCard">
+      <h3 id="spPrefsTitle">البيانات اللي هشاركها</h3>
+      <p class="hint" id="spPrefsIntro"></p>
+      <div id="spTypeList" class="sp-type-list"></div>
+      <p class="sp-share-note" id="spPrefsNote">تفعيل نوع بيانات يرفع السجلات الموجودة والجديدة. عند إيقافه تظل النسخ التي سبق رفعها ظاهرة، وتتوقف مزامنة التغييرات الجديدة.</p>
+      <button class="btn primary sp-save-prefs" id="spSavePrefs" hidden>حفظ اختيارات المشاركة</button>
+    </div>
+    <div class="card" id="spDataCard" hidden>
+      <h3>البيانات المشتركة</h3>
+      <p class="hint">تظهر هنا البيانات التي شاركها أعضاء المساحة. تعديل السجلات يكون من جهاز صاحبها.</p>
+      <div id="spSharedData" class="sp-shared-data"></div>
+    </div>
+  </section>
+
   <!-- الإعدادات -->
   <section class="view" id="v-settings" aria-label="الإعدادات">
     <div class="topbar"><h1>الإعدادات</h1></div>
@@ -858,30 +926,6 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
       <p class="hint">دوس على أي طريقة عشان تخليها الافتراضية في المصاريف الجديدة، ودوسة مطولة عليها عشان تعدلها أو تحذفها.</p>
       <div id="payList" class="pay-grid"></div>
       <button class="btn add-cat" id="addPay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>إضافة طريقة دفع</button>
-    </div>
-
-    <div class="card" id="spaceCard">
-      <div class="card-h"><h3>مساحة مشتركة</h3><span class="hint" id="spStatus"></span></div>
-      <div id="spOff">
-        <p class="hint">شارك مصاريفك مع شخص تاني. كل طرف يقدر يشغل المشاركة التلقائية لمصاريفه، أو يرفعها يدويًا. محتاج إنترنت للمزامنة.</p>
-        <div class="sp-row" style="margin-top:12px"><button class="btn primary" id="spCreate">إنشاء مساحة</button><button class="btn" id="spJoin">انضمام بكود</button></div>
-      </div>
-      <div id="spWait" hidden>
-        <p class="hint" id="spWaitText"></p>
-        <button class="linkbtn wl-link" id="spCancelRequest">إلغاء الطلب</button>
-      </div>
-      <div id="spOn" hidden>
-        <p class="hint">كود المساحة. ابعته للشخص التاني عشان ينضم.</p>
-        <div class="sp-code" id="spCode"></div>
-        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>مشاركة مصاريفي تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="مشاركة المصاريف تلقائيًا"><i></i></label></div></div>
-        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>مشاركة مصاريفي يدويًا</button>
-        <p class="hint" id="spInfo" style="margin-top:10px"></p>
-        <div id="spReqWrap" hidden style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
-          <strong>طلبات الانضمام</strong>
-          <div id="spReqList" class="sp-req-list"></div>
-        </div>
-        <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
-      </div>
     </div>
 
     <div class="card">
@@ -966,6 +1010,7 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
   <button data-tab="reports"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>التقارير</button>
   <button data-tab="debts"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg></span>التزاماتي</button>
   <button data-tab="me"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>أنا</button>
+  <button data-tab="space"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></span>المساحة</button>
   <button data-tab="settings"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>الإعدادات</button>
 </div></nav>
 
@@ -1611,11 +1656,11 @@ function renderSettings(){
   $('#bioHint').textContent= !AB? 'بيشتغل في نسخة أندرويد' : !bioOk? 'الموبايل ده مفيهوش بصمة متسجلة' : !S.pin? 'فعل القفل بالرقم السري الأول' : 'افتح التطبيق ببصمتك بدل الرقم السري';
 }
 
-function renderAll(){renderMe();renderHome();renderDebts();renderReports();if(!$('#reportsDetail').hidden)renderDetail();if(!$('#reportsSearch').hidden)renderSearch();renderSettings()}
+function renderAll(){renderMe();renderHome();renderDebts();renderReports();if(!$('#reportsDetail').hidden)renderDetail();if(!$('#reportsSearch').hidden)renderSearch();renderSettings();renderSpace()}
 
 /* Navigation */
 let tab='expenses';
-const TABS=['expenses','reports','debts','me','settings'];
+const TABS=['expenses','reports','debts','me','space','settings'];
 function go(t){
   if(t===tab && t!=='reports'){window.scrollTo({top:0,behavior:'smooth'});return}
   const dir=TABS.indexOf(t)-TABS.indexOf(tab); tab=t;
@@ -1625,9 +1670,10 @@ function go(t){
     if(on){v.style.setProperty('--dx',dir>0?'-24px':dir<0?'24px':'0px');v.classList.remove('active');void v.offsetWidth}
     v.classList.toggle('active',on)});
   document.querySelectorAll('.nav button').forEach(b=>{if(b.dataset.tab===t)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
-  $('#fab').hidden = t==='settings'||t==='me';
+  $('#fab').hidden = t==='settings'||t==='me'||t==='space';
   if(t==='reports'){showDetail(false);renderReports()}
   if(t==='debts') renderDebts();
+  if(t==='space') renderSpace();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
@@ -2912,17 +2958,39 @@ $('#wlDone').onclick=()=>{
 /* ===== Shared space (Firebase Firestore) ===== */
 const FB_CFG={apiKey:"AIzaSyDU1ZaGA4zyRxnW4M43gnncok8Hbx5_Rtg",authDomain:"masrofi-871f8.firebaseapp.com",projectId:"masrofi-871f8",storageBucket:"masrofi-871f8.firebasestorage.app",messagingSenderId:"397801365011",appId:"1:397801365011:web:8e972a632a4e4f3d6de9e6"};
 const SP_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-let fbP=null, fb=null, spUnsub=null, spUnsubM=null, spUnsubR=null, spJoinUnsub=null, spTimer=null, spHash={}, spReady=false, spMembers=0, spSt='off', spMode='create', spOwner=false, spRequests=[], spRequestsPrimed=false, spReqErr=false;
+const SP_SHARE_META=[
+  {key:'expenses',label:'المصروفات',icon:'💸',desc:'تفاصيل المصروفات التي تختار رفعها.'},
+  {key:'reports',label:'التقارير الشهرية',icon:'📊',desc:'إجماليات الشهر وتوزيع الفئات، من غير تفاصيل كل عملية.'},
+  {key:'debts',label:'السلف والديون',icon:'🤝',desc:'الأشخاص والمبالغ ومواعيد الاستحقاق وسجل السداد.'},
+  {key:'gams',label:'الجمعيات',icon:'🧩',desc:'قيمة القسط والأدوار والأقساط المسددة.'},
+  {key:'goals',label:'أهداف الادخار',icon:'🎯',desc:'اسم الهدف ومبلغه والرصيد المحفوظ.'},
+  {key:'incomes',label:'الدخل الشهري',icon:'💰',desc:'مصادر الدخل والمبالغ الشهرية.'},
+  {key:'fixed',label:'المصاريف الثابتة',icon:'🧾',desc:'المصاريف المجدولة وحالة تسجيل كل شهر.'}
+];
+const SP_EXTRA_TYPES=['reports','debts','gams','goals','incomes','fixed'];
+let fbP=null, fb=null, spUnsub=null, spUnsubM=null, spUnsubR=null, spUnsubP=null, spJoinUnsub=null, spTimer=null, spHash={}, spReady=false, spMembers=0, spSt='off', spMode='create', spOwner=false, spRequests=[], spRequestsPrimed=false, spReqErr=false;
+let spExtraUnsubs=[], spExtraData={reports:[],debts:[],gams:[],goals:[],incomes:[],fixed:[]}, spExtraCloud={reports:{},debts:{},gams:{},goals:{},incomes:{},fixed:{}}, spExtraReady={}, spExtraBusy=false, spExtraAgain=false, spMemberProfiles=[], spProfileReady=false;
 const spMe=()=>(fb&&fb.uid)||(S.space&&S.space.uid)||'';
 const hashE=e=>JSON.stringify([+e.amount,e.cat,e.note||'',e.pay||'',+e.ts]);
 const spFmt=c=>String(c||'').replace(/^(.{5})(.{5})$/,'$1-$2');
 const spNorm=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const spGen=()=>{const a=new Uint32Array(10);crypto.getRandomValues(a);return Array.from(a,x=>SP_ABC[x%32]).join('')};
 const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no({code:'timeout'}),ms))]);
+function spBlankPrefs(expenses=true){return {expenses:!!expenses,reports:false,debts:false,gams:false,goals:false,incomes:false,fixed:false}}
+function spNormPrefs(p,legacy=true){const d=spBlankPrefs(false), src=p&&typeof p==='object'?p:{};SP_SHARE_META.forEach(x=>{d[x.key]=typeof src[x.key]==='boolean'?src[x.key]:(legacy&&x.key==='expenses')});return d}
+function spDraftPrefs(){if(!S.space&&!S.spaceRequest&&!S.spaceShareDraft)S.spaceShareDraft=spBlankPrefs(true);return spNormPrefs(S.space?S.space.shareDraft:S.spaceRequest?S.spaceRequest.sharePrefs:S.spaceShareDraft,S.space?true:!!(S.spaceRequest&&S.spaceRequest.sharePrefs))}
+function spPrefSame(a,b){const x=spNormPrefs(a,false),y=spNormPrefs(b,false);return SP_SHARE_META.every(t=>x[t.key]===y[t.key])}
+function spShareLabels(p){const n=SP_SHARE_META.filter(t=>spNormPrefs(p,false)[t.key]).map(t=>t.label);return n.length?n.join('، '):'مش هيشارك بيانات حاليًا'}
+function spLocalExpenses(){const uid=spMe();return (S.expenses||[]).filter(e=>!e.sp||e.by===uid)}
+function spCountLocal(type){
+  if(type==='expenses') return spLocalExpenses().length;
+  if(type==='reports') return new Set(spLocalExpenses().filter(e=>Number.isFinite(+e.ts)).map(e=>periodAt(+e.ts,repPd()).key)).size;
+  const a=S[type];return Array.isArray(a)?a.length:0;
+}
 function spErrMsg(e){const c=e&&e.code;
   return c==='nf'?'الكود ده مش موجود، اتأكد منه':c==='full'?'المساحة دي اكتملت (5 أعضاء)':
   (c==='timeout'||c==='unavailable')?'مفيش اتصال بالسيرفر. اتأكد من الإنترنت وجرب تاني':
-  c==='permission-denied'?'تعذر إرسال الطلب؛ اتأكد من الكود ومن نشر قواعد Firestore الجديدة':
+  c==='permission-denied'?'تعذر تنفيذ العملية؛ اتأكد من نشر قواعد Firestore المحدّثة':
   (c==='auth/operation-not-allowed'||c==='auth/admin-restricted-operation')?'فعّل الدخول المجهول (Anonymous) من Firebase Authentication':'حصلت مشكلة، جرب تاني'}
 function fbInit(){
   if(fbP) return fbP;
@@ -2938,237 +3006,256 @@ function fbInit(){
   return fbP;
 }
 function spSetStatus(s){spSt=s;renderSpace()}
+function spRenderShareTypes(){
+  const list=$('#spTypeList'), on=!!S.space, req=!!S.spaceRequest, prefs=spDraftPrefs(), pending=req&&S.spaceRequest.status==='pending';
+  const base=S.space?spNormPrefs(S.space.sharePrefs,true):req?spNormPrefs(S.spaceRequest.sharePrefs,true):spNormPrefs(S.spaceShareDraft,false);
+  const dirty=on&&!spPrefSame(prefs,base);
+  $('#spPrefsTitle').textContent=on?'البيانات اللي هشاركها':req?'اختيارات المشاركة':'البيانات اللي هشاركها';
+  $('#spPrefsIntro').textContent=on?'اختار بياناتك أنت. كل عضو يحدد بنفسه إيه اللي يشاركه؛ تقدر تشوف بيانات الأعضاء اللي اختاروا المشاركة.':pending?'دي اختياراتك المرفقة بطلب الانضمام، وتبدأ المشاركة بعد موافقة صاحب المساحة.':'حدد هتشارك ايه قبل ماتنشء المساحة او تنضم لمساحة موجوده دلوقت';
+  list.innerHTML=SP_SHARE_META.map(t=>`<label class="sp-type-row"><span class="sp-ti" aria-hidden="true">${t.icon}</span><span class="sp-tt"><b>${t.label}</b><small>${t.desc}</small><span class="sp-count">${spCountLocal(t.key)} ${t.key==='reports'?'فترة':'سجل'} موجود${spCountLocal(t.key)===1?'':'ة'} عندك</span></span><input type="checkbox" data-sp-type="${t.key}" ${prefs[t.key]?'checked':''} ${pending?'disabled':''} aria-label="مشاركة ${t.label}"></label>`).join('');
+  $('#spPrefsNote').textContent='لو اخترت أي نوع بيانات هتتشارك سجلاته اللي موجوده دلوقت والجديدة. ولو شيلت علامة الصح هتفضل النسخ اللي اترفعت قبل كده موجوده عند الطرف التاني (ولكن البيانات الجديدة لا)';
+  $('#spSavePrefs').hidden=!on||!dirty;
+  const auto=$('#spAuto'); if(auto){auto.checked=!!(S.space&&S.space.auto);auto.disabled=!!(on&&!prefs.expenses);const wrap=auto.closest('.sp-auto');if(wrap)wrap.classList.toggle('off',auto.disabled)}
+}
+function spRenderSharedData(){
+  const card=$('#spDataCard'), out=$('#spSharedData'); if(!S.space){card.hidden=true;return} card.hidden=false;
+  const code=S.space.code, exp=(S.expenses||[]).filter(e=>e.sp===code).sort((a,b)=>b.ts-a.ts);
+  const groups=[];
+  if(exp.length){
+    const people={};exp.forEach(e=>{const k=e.by||'unknown',g=people[k]||(people[k]={name:e.byName||'عضو',count:0,total:0});g.count++;g.total+=(+e.amount||0)});
+    const rows=Object.values(people).map(x=>`<div class="sp-share-record"><div class="main"><b>${esc(x.name)}</b><small class="sp-owner-tag">مصاريف مشتركة · ${x.count} عملية</small></div><span class="amt">${money(x.total)} ${CS()}</span></div>`).join('');
+    groups.push(`<details class="sp-share-group"><summary>المصروفات <span class="n">${exp.length} عملية</span></summary>${rows}</details>`);
+  }
+  const titleBy=Object.fromEntries(SP_SHARE_META.map(t=>[t.key,t.label]));
+  SP_EXTRA_TYPES.forEach(type=>{
+    const rows=(spExtraData[type]||[]).slice().sort((a,b)=>String(b.localId||'').localeCompare(String(a.localId||'')));
+    if(!rows.length)return;
+    let body='';
+    if(type==='reports') body=rows.map(r=>{const d=r.payload||{};const cat=Object.entries(d.categories||{}).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>`${esc((CAT[k]||CAT.other).name)} ${money(v)}`).join(' · ');return `<div class="sp-share-record"><div class="main"><b>${esc(r.ownerName||'عضو')} · ${esc(d.periodLabel||d.periodKey||'تقرير شهري')}</b><small>${d.count||0} عملية${cat?' · '+cat:''}</small></div><span class="amt">${money(d.total||0)} ${esc(d.currency||CS())}</span></div>`}).join('');
+    if(type==='debts') body=rows.map(r=>{const d=r.payload||{}, paid=(d.payments||[]).reduce((a,x)=>a+(+x.amount||0),0), remaining=Math.max(0,(+d.amount||0)-paid);return `<div class="sp-share-record"><div class="main"><b>${esc(d.person||'التزام')} · ${esc(r.ownerName||'عضو')}</b><small>${d.dir==='in'?'له عند الناس':'عليه للناس'} · المتبقي ${money(remaining)} ${CS()}${d.due?' · استحقاق '+esc(dkToDMY(String(d.due))):''}</small></div><span class="amt">${money(d.amount||0)} ${CS()}</span></div>`}).join('');
+    if(type==='gams') body=rows.map(r=>{const d=r.payload||{}, paid=Object.values(d.paid||{}).filter(x=>x&&x.ts).length;return `<div class="sp-share-record"><div class="main"><b>${esc(d.name||'جمعية')} · ${esc(r.ownerName||'عضو')}</b><small>${d.members||0} قسط · ${paid} مسدد · الدور ${d.turn||'—'}</small></div><span class="amt">${money(d.inst||0)} ${CS()} / قسط</span></div>`}).join('');
+    if(type==='goals') body=rows.map(r=>{const d=r.payload||{};return `<div class="sp-share-record"><div class="main"><b>${esc(d.name||'هدف')} · ${esc(r.ownerName||'عضو')}</b><small>تم ادخار ${money(d.saved||0)} من ${money(d.target||0)} ${CS()}</small></div></div>`}).join('');
+    if(type==='incomes') body=rows.map(r=>{const d=r.payload||{};return `<div class="sp-share-record"><div class="main"><b>${esc(d.name||'دخل')} · ${esc(r.ownerName||'عضو')}</b><small>كل شهر</small></div><span class="amt">${money(d.amount||0)} ${CS()}</span></div>`}).join('');
+    if(type==='fixed') body=rows.map(r=>{const d=r.payload||{};return `<div class="sp-share-record"><div class="main"><b>${esc(d.name||'مصروف ثابت')} · ${esc(r.ownerName||'عضو')}</b><small>${d.day?'يوم '+d.day+' من الشهر · ':''}${(d.log&&Object.values(d.log).filter(x=>x==='done').length)||0} مسجل</small></div><span class="amt">${d.amount?money(d.amount)+' '+CS():'متغير'}</span></div>`}).join('');
+    groups.push(`<details class="sp-share-group"><summary>${titleBy[type]} <span class="n">${rows.length} ${type==='reports'?'فترة':'سجل'}</span></summary>${body}</details>`);
+  });
+  out.innerHTML=groups.length?groups.join(''):'<div class="sp-empty">لسه مفيش بيانات اتشاركت في المساحة. لما أي عضو يفعّل نوع بيانات، هتظهر هنا.</div>';
+}
 function renderSpace(){
   const on=!!S.space, waiting=!on&&!!S.spaceRequest;
-  $('#spOff').hidden=on||waiting; $('#spWait').hidden=!waiting; $('#spOn').hidden=!on; $('#wipeSpNote').hidden=!on;
-  const st={on:'متصل',sync:'بيتزامن...',off:'أوفلاين',err:'مشكلة في الاتصال',denied:'مش مسموح'};
-  $('#spStatus').textContent=on?(st[spSt]||''):'';
+  $('#spOff').hidden=on||waiting; $('#spWait').hidden=!waiting; $('#spOn').hidden=!on;
+  const wipeNote=$('#wipeSpNote');if(wipeNote)wipeNote.hidden=!on;
+  const st={on:'متصل',sync:'بيتزامن...',off:'أوفلاين',err:'مشكلة في الاتصال',denied:'راجع قواعد Firebase'};
+  $('#spStatus').textContent=on?(st[spSt]||''):(waiting?'في انتظار الموافقة':'');
   if(waiting){
     const rejected=S.spaceRequest.status==='rejected';
-    $('#spWaitText').textContent=rejected?'صاحب المساحة رفض طلب الانضمام. تقدر تمسح الرسالة وتبعت طلبًا جديدًا.':'طلب الانضمام اتبعت لصاحب المساحة. هتقدر تدخل بعد ما يوافق.';
+    $('#spWaitText').textContent=rejected?'صاحب المساحة رفض طلب الانضمام. تقدر تعدل اختيارات المشاركة، تمسح الرسالة، وتبعت طلبًا جديدًا.':'طلب الانضمام اتبعت لصاحب المساحة. هتقدر تدخل بعد ما يوافق.';
     $('#spCancelRequest').textContent=rejected?'مسح الرسالة':'إلغاء الطلب';
   }
-  if(on){const code=S.space.code, priv=S.expenses.filter(e=>!e.sp&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).length, up=$('#spUpload');
-    $('#spAuto').checked=!!S.space.auto; up.hidden=!!S.space.auto||!priv; up.dataset.idle=`مشاركة مصاريفي يدويًا (${priv})`; if(!up.dataset.arm) up.textContent=up.dataset.idle;
+  if(on){const code=S.space.code, prefs=spNormPrefs(S.space.sharePrefs,true), priv=(S.expenses||[]).filter(e=>!e.sp&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).length, up=$('#spUpload');
     $('#spCode').textContent=spFmt(code);
-    $('#spInfo').textContent=(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'اتفصلت من المساحة. اخرج منها وانضم تاني بالكود.':S.space.auto?'المصاريف الجديدة والقديمة غير المشتركة بتظهر عند باقي الأعضاء تلقائيًا.':'المشاركة التلقائية متوقفة؛ المصاريف الجديدة خاصة بجهازك حتى تشاركها يدويًا.');
+    up.hidden=!prefs.expenses||!!S.space.auto||!priv;up.dataset.idle=`مشاركة مصاريفي يدويًا (${priv})`;if(!up.dataset.arm)up.textContent=up.dataset.idle;
+    $('#spInfo').textContent=!prefs.expenses?'مشاركة المصاريف متوقفة. النسخ التي سبق رفعها تظل ظاهرة للطرف الآخر.':(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'تعذر الوصول؛ راجع نشر قواعد Firestore الجديدة.':S.space.auto?'المصاريف الجديدة بتتشارك تلقائيًا. المصاريف القديمة غير المشتركة تحتاج رفعًا يدويًا.':'المشاركة التلقائية متوقفة؛ المصاريف الجديدة خاصة حتى ترفعها يدويًا، والمصاريف المشتركة بالفعل تظل ظاهرة.');
     $('#spReqWrap').hidden=!spOwner;
-    if(spOwner) $('#spReqList').innerHTML=spReqErr?'<p class="hint" style="margin-top:6px">تعذر تحميل الطلبات. تأكد من نشر قواعد Firestore الجديدة.</p>':spRequests.length?spRequests.map(r=>`<div class="sp-req-item"><div class="sp-req-name">${esc(r.name||'عضو')}<small class="hint" style="display:block">عايز ينضم للمساحة</small></div><div class="sp-req-actions"><button class="btn primary" data-sp-accept="${esc(r.uid)}">موافقة</button><button class="btn" data-sp-reject="${esc(r.uid)}">رفض</button></div></div>`).join(''):'<p class="hint" style="margin-top:6px">مفيش طلبات انضمام معلقة.</p>';
-  } else {$('#spReqWrap').hidden=true}
+    if(spOwner) $('#spReqList').innerHTML=spReqErr?'<p class="hint" style="margin-top:6px">تعذر تحميل الطلبات. تأكد من نشر قواعد Firestore الجديدة.</p>':spRequests.length?spRequests.map(r=>`<div class="sp-req-item"><div class="sp-req-name">${esc(r.name||'عضو')}<small class="hint" style="display:block">هيشارك: ${esc(spShareLabels(r.sharePrefs))}</small></div><div class="sp-req-actions"><button class="btn primary" data-sp-accept="${esc(r.uid)}">موافقة</button><button class="btn" data-sp-reject="${esc(r.uid)}">رفض</button></div></div>`).join(''):'<p class="hint" style="margin-top:6px">مفيش طلبات انضمام معلقة.</p>';
+  } else $('#spReqWrap').hidden=true;
+  spRenderShareTypes();spRenderSharedData();
 }
-function spQueue(){if(!S.space) return; clearTimeout(spTimer); spTimer=setTimeout(spPush,700)}
-function spStop(){if(spUnsub){spUnsub();spUnsub=null} if(spUnsubM){spUnsubM();spUnsubM=null} if(spUnsubR){spUnsubR();spUnsubR=null} spOwner=false;spRequests=[];spRequestsPrimed=false;spReqErr=false;spReady=false;spHash={};clearTimeout(spTimer)}
+function spQueue(){if(!S.space)return;clearTimeout(spTimer);spTimer=setTimeout(spPush,700)}
+function spStop(){
+  if(spUnsub){spUnsub();spUnsub=null}if(spUnsubM){spUnsubM();spUnsubM=null}if(spUnsubR){spUnsubR();spUnsubR=null}if(spUnsubP){spUnsubP();spUnsubP=null}
+  spExtraUnsubs.forEach(u=>{try{u()}catch(e){}});spExtraUnsubs=[];spOwner=false;spRequests=[];spRequestsPrimed=false;spReqErr=false;spReady=false;spHash={};spProfileReady=false;spMemberProfiles=[];spExtraData={reports:[],debts:[],gams:[],goals:[],incomes:[],fixed:[]};spExtraCloud={reports:{},debts:{},gams:{},goals:{},incomes:{},fixed:{}};spExtraReady={};clearTimeout(spTimer)
+}
 function spStopJoinWatch(){if(spJoinUnsub){spJoinUnsub();spJoinUnsub=null}}
-function spActivateJoin(code,uid,name){
-  spStopJoinWatch();
-  S.space={code,uid,name,auto:false,old:S.expenses.map(e=>e.id)}; S.spaceRequest=null;
+function spActivateJoin(code,uid,name,prefs){
+  spStopJoinWatch();const p=spNormPrefs(prefs||S.spaceRequest&&S.spaceRequest.sharePrefs,true);
+  S.space={code,uid,name,auto:false,old:S.expenses.map(e=>e.id),sharePrefs:p,shareDraft:{...p}};S.spaceRequest=null;S.spaceShareDraft=null;
   save();renderSpace();spListen();toast('صاحب المساحة وافق على انضمامك');
 }
 function spWatchJoinRequest(){
-  if(!S.spaceRequest||S.spaceRequest.status!=='pending'||spJoinUnsub) return;
+  if(!S.spaceRequest||S.spaceRequest.status!=='pending'||spJoinUnsub)return;
   const pending={...S.spaceRequest};
   fbInit().then(f=>{
-    if(!S.spaceRequest||S.spaceRequest.code!==pending.code||S.spaceRequest.uid!==pending.uid||spJoinUnsub) return;
+    if(!S.spaceRequest||S.spaceRequest.code!==pending.code||S.spaceRequest.uid!==pending.uid||spJoinUnsub)return;
     const ref=f.F.doc(f.db,'spaces',pending.code,'joinRequests',pending.uid);
     spJoinUnsub=f.F.onSnapshot(ref,snap=>{
-      if(!S.spaceRequest||S.spaceRequest.code!==pending.code||S.spaceRequest.uid!==pending.uid) return;
+      if(!S.spaceRequest||S.spaceRequest.code!==pending.code||S.spaceRequest.uid!==pending.uid)return;
       if(!snap.exists()){spStopJoinWatch();S.spaceRequest=null;save();renderSpace();return}
       const d=snap.data()||{};
-      if(d.status==='approved'){spActivateJoin(pending.code,pending.uid,pending.name);return}
-      if(d.status==='rejected'){spStopJoinWatch();S.spaceRequest.status='rejected';save();renderSpace();return}
-      if(d.status==='cancelled'){spStopJoinWatch();S.spaceRequest=null;save();renderSpace()}
-    },()=>{ /* Keep the pending state visible; it will reconnect when the app resumes. */ });
+      if(d.status==='approved'){spActivateJoin(pending.code,pending.uid,pending.name,d.sharePrefs||pending.sharePrefs);return}
+      if(d.status==='rejected'){spStopJoinWatch();S.spaceRequest.status='rejected';S.spaceRequest.sharePrefs=spNormPrefs(d.sharePrefs||pending.sharePrefs,true);save();renderSpace();return}
+      if(d.status==='cancelled'){spStopJoinWatch();S.spaceShareDraft=spNormPrefs(d.sharePrefs||pending.sharePrefs,true);S.spaceRequest=null;save();renderSpace()}
+    },()=>{});
   }).catch(()=>{});
 }
 async function spDecideRequest(uid,approve){
-  if(!S.space||!fb||!spOwner) return;
-  const code=S.space.code, {F,db}=fb, reqRef=F.doc(db,'spaces',code,'joinRequests',uid), spaceRef=F.doc(db,'spaces',code);
+  if(!S.space||!fb||!spOwner)return;
+  const code=S.space.code,{F,db}=fb,reqRef=F.doc(db,'spaces',code,'joinRequests',uid),spaceRef=F.doc(db,'spaces',code);
   try{
     const [reqSnap,spaceSnap]=await Promise.all([F.getDoc(reqRef),F.getDoc(spaceRef)]);
     if(!reqSnap.exists()||!spaceSnap.exists()||reqSnap.data().status!=='pending'){toast('الطلب اتعالج بالفعل');return}
     if(approve){
-      const ids=(spaceSnap.data().memberIds)||[];
-      if(ids.includes(uid)){toast('العضو موجود بالفعل');return}
-      if(ids.length>=5){toast('المساحة وصلت للحد الأقصى: 5 أعضاء');return}
-      const batch=F.writeBatch(db);
-      batch.update(spaceRef,{memberIds:F.arrayUnion(uid),lastApprovedUid:uid,lastApprovedAt:F.serverTimestamp()});
-      batch.update(reqRef,{status:'approved',resolvedBy:fb.uid,resolvedAt:F.serverTimestamp()});
-      await batch.commit();toast('تمت الموافقة على طلب الانضمام');
-    }else{
-      await F.updateDoc(reqRef,{status:'rejected',resolvedBy:fb.uid,resolvedAt:F.serverTimestamp()});toast('تم رفض طلب الانضمام');
-    }
+      const ids=(spaceSnap.data().memberIds)||[];if(ids.includes(uid)){toast('العضو موجود بالفعل');return}if(ids.length>=5){toast('المساحة وصلت للحد الأقصى: 5 أعضاء');return}
+      const batch=F.writeBatch(db);batch.update(spaceRef,{memberIds:F.arrayUnion(uid),lastApprovedUid:uid,lastApprovedAt:F.serverTimestamp()});batch.update(reqRef,{status:'approved',resolvedBy:fb.uid,resolvedAt:F.serverTimestamp()});await batch.commit();toast('تمت الموافقة على طلب الانضمام');
+    }else{await F.updateDoc(reqRef,{status:'rejected',resolvedBy:fb.uid,resolvedAt:F.serverTimestamp()});toast('تم رفض طلب الانضمام')}
   }catch(e){toast(e&&e.code==='permission-denied'?'تعذر تنفيذ القرار. تأكد من نشر قواعد Firestore الجديدة':spErrMsg(e))}
 }
-function spDetach(){if(!S.space) return; spStop(); S.expenses.forEach(e=>{delete e.sp}); S.space=null; renderSpace()}
-function spClearOldId(id){
-  if(!S.space) return false;
-  let changed=false;
-  ['old','manual'].forEach(k=>{const a=Array.isArray(S.space[k])?S.space[k]:[]; if(a.includes(id)){S.space[k]=a.filter(x=>x!==id);changed=true}});
-  return changed;
-}
+function spDetach(){if(!S.space)return;spStop();S.expenses.forEach(e=>{delete e.sp});S.space=null;renderSpace()}
+function spClearOldId(id){if(!S.space)return false;let changed=false;['old','manual'].forEach(k=>{const a=Array.isArray(S.space[k])?S.space[k]:[];if(a.includes(id)){S.space[k]=a.filter(x=>x!==id);changed=true}});return changed}
 function spApply(snap){
-  const code=S.space.code; let changed=false, stateChanged=false;
+  const code=S.space.code;let changed=false,stateChanged=false;
   snap.docChanges().forEach(ch=>{
-    const id=ch.doc.id, d=ch.doc.data()||{}, i=S.expenses.findIndex(e=>e.id===id);
-    if(d.del||ch.type==='removed'){ if(i>=0){S.expenses.splice(i,1);changed=true} delete spHash[id]; stateChanged=spClearOldId(id)||stateChanged; return }
-    const e={id,amount:+d.amount||0,cat:CAT[d.cat]?d.cat:'other',note:d.note||'',ts:+d.ts||Date.now(),sp:code,by:d.by,byName:d.byName}; if(d.pay) e.pay=d.pay;
+    const id=ch.doc.id,d=ch.doc.data()||{},i=S.expenses.findIndex(e=>e.id===id);
+    if(d.del||ch.type==='removed'){if(i>=0){S.expenses.splice(i,1);changed=true}delete spHash[id];stateChanged=spClearOldId(id)||stateChanged;return}
+    const e={id,amount:+d.amount||0,cat:CAT[d.cat]?d.cat:'other',note:d.note||'',ts:+d.ts||Date.now(),sp:code,by:d.by,byName:d.byName};if(d.pay)e.pay=d.pay;
     const h=hashE(e);
-    if(i>=0&&hashE(S.expenses[i])===h){spHash[id]=h; if(!S.expenses[i].by){S.expenses[i].by=d.by;S.expenses[i].byName=d.byName;S.expenses[i].sp=code;changed=true} stateChanged=spClearOldId(id)||stateChanged; return}
-    if(i>=0) S.expenses[i]=e; else S.expenses.push(e);
-    spHash[id]=h; changed=true; stateChanged=spClearOldId(id)||stateChanged;
+    if(i>=0&&hashE(S.expenses[i])===h){spHash[id]=h;if(!S.expenses[i].by){S.expenses[i].by=d.by;S.expenses[i].byName=d.byName;S.expenses[i].sp=code;changed=true}stateChanged=spClearOldId(id)||stateChanged;return}
+    if(i>=0)S.expenses[i]=e;else S.expenses.push(e);spHash[id]=h;changed=true;stateChanged=spClearOldId(id)||stateChanged;
   });
-  if(changed||stateChanged) save();
-  if(changed){renderAll();setTimeout(checkAlerts,500)} else if(stateChanged) renderSpace();
+  if(changed||stateChanged)save();if(changed){renderAll();setTimeout(checkAlerts,500)}else if(stateChanged)renderSpace();
 }
-let spPushBusy=false, spPushAgain=false;
+let spPushBusy=false,spPushAgain=false;
 async function spPush(){
-  clearTimeout(spTimer);
-  if(!S.space||!fb||!spReady) return;
-  if(spPushBusy){spPushAgain=true;return}
-  spPushBusy=true;
-  const {F,db,uid}=fb, code=S.space.code;
+  clearTimeout(spTimer);if(!S.space||!fb||!spReady)return;if(spPushBusy){spPushAgain=true;return}spPushBusy=true;
+  const {F,db,uid}=fb,code=S.space.code;
   try{
-    const manual=new Set(S.space.manual||[]), nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
-    const writes=[], cur=new Set();
-    S.expenses.forEach(e=>{
-      const serverKnown=Object.prototype.hasOwnProperty.call(spHash,e.id);
-      if(e.sp&&e.sp!==code) return;
-      // Every local-only expense (old or newly added) stays private unless auto-share is on or the user explicitly selects manual sharing.
-      if(!serverKnown&&!e.sp&&!S.space.auto&&!manual.has(e.id)) return;
-      // Do not resurrect a legacy locally-marked record if it is absent from the space snapshot.
-      if(e.sp===code&&!serverKnown) return;
-      cur.add(e.id); const h=hashE(e);
-      if(spHash[e.id]!==h) writes.push([e.id,{amount:+e.amount,cat:e.cat,note:String(e.note||'').slice(0,200),pay:e.pay||'',ts:+e.ts,by:e.by||uid,byName:String(e.byName||nm).slice(0,40),del:false,upd:F.serverTimestamp()},h]);
-    });
-    Object.keys(spHash).forEach(id=>{if(!cur.has(id)) writes.push([id,{del:true,upd:F.serverTimestamp()},null])});
-    for(let i=0;i<writes.length;i+=400){
-      const chunk=writes.slice(i,i+400), b=F.writeBatch(db);
-      chunk.forEach(([id,data])=>b.set(F.doc(db,'spaces',code,'expenses',id),data));
-      await b.commit();
-      let localChanged=false;
-      chunk.forEach(([id,,h])=>{
-        if(h===null){delete spHash[id];return}
-        spHash[id]=h;
-        const e=S.expenses.find(x=>x.id===id);
-        if(e&&S.space&&S.space.code===code){
-          if(e.sp!==code){e.sp=code;localChanged=true}
-          if(!e.by){e.by=uid;localChanged=true}
-          if(!e.byName){e.byName=nm;localChanged=true}
-          if(spClearOldId(id)) localChanged=true;
-        }
+    const prefs=spNormPrefs(S.space.sharePrefs,true),manual=new Set(S.space.manual||[]),nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
+    if(prefs.expenses){
+      const writes=[],cur=new Set();
+      S.expenses.forEach(e=>{
+        const serverKnown=Object.prototype.hasOwnProperty.call(spHash,e.id);if(e.sp&&e.sp!==code)return;
+        if(!serverKnown&&!e.sp&&!S.space.auto&&!manual.has(e.id))return;if(e.sp===code&&!serverKnown)return;
+        cur.add(e.id);const h=hashE(e);if(spHash[e.id]!==h)writes.push([e.id,{amount:+e.amount,cat:e.cat,note:String(e.note||'').slice(0,200),pay:e.pay||'',ts:+e.ts,by:e.by||uid,byName:String(e.byName||nm).slice(0,40),del:false,upd:F.serverTimestamp()},h]);
       });
-      if(localChanged&&S.space&&S.space.code===code) lsSet(KEY,JSON.stringify(S));
+      Object.keys(spHash).forEach(id=>{if(!cur.has(id))writes.push([id,{del:true,upd:F.serverTimestamp()},null])});
+      for(let i=0;i<writes.length;i+=400){const chunk=writes.slice(i,i+400),b=F.writeBatch(db);chunk.forEach(([id,data])=>b.set(F.doc(db,'spaces',code,'expenses',id),data));await b.commit();let localChanged=false;chunk.forEach(([id,,h])=>{if(h===null){delete spHash[id];return}spHash[id]=h;const e=S.expenses.find(x=>x.id===id);if(e&&S.space&&S.space.code===code){if(e.sp!==code){e.sp=code;localChanged=true}if(!e.by){e.by=uid;localChanged=true}if(!e.byName){e.byName=nm;localChanged=true}if(spClearOldId(id))localChanged=true}});if(localChanged&&S.space&&S.space.code===code)lsSet(KEY,JSON.stringify(S))}
     }
-    renderSpace();
+    await spPushTypes();renderSpace();
   }catch(e){spSetStatus(e&&e.code==='permission-denied'?'denied':'err')}
-  finally{
-    spPushBusy=false;
-    if(spPushAgain){spPushAgain=false;spQueue()}
-  }
+  finally{spPushBusy=false;if(spPushAgain){spPushAgain=false;spQueue()}}
+}
+function spClone(x){try{return JSON.parse(JSON.stringify(x))}catch(e){return {}}}
+function spReportRows(uid){
+  const groups={};spLocalExpenses().filter(e=>Number.isFinite(+e.ts)).forEach(e=>{
+    const P=periodAt(+e.ts,repPd()),g=groups[P.key]||(groups[P.key]={periodKey:P.key,periodLabel:repName(P),total:0,count:0,categories:{},currency:String(S.currency||'EGP')});
+    const amount=+e.amount||0;g.total+=amount;g.count++;g.categories[e.cat]=(g.categories[e.cat]||0)+amount;
+  });
+  return Object.values(groups).map(g=>({localId:g.periodKey,payload:g}));
+}
+function spBuildLocalRows(type){
+  if(type==='reports')return spReportRows(spMe());
+  if(type==='debts'||type==='gams'||type==='goals'||type==='incomes')return (Array.isArray(S[type])?S[type]:[]).filter(x=>x&&x.id!=null).map(x=>({localId:String(x.id),payload:spClone(x)}));
+  if(type==='fixed')return (Array.isArray(S.fixed)?S.fixed:[]).filter(x=>x&&x.id!=null).map(x=>{const prefix=String(x.id)+':',log=Object.fromEntries(Object.entries(S.fixedLog||{}).filter(([k])=>k.startsWith(prefix)));return {localId:String(x.id),payload:{...spClone(x),log}}});
+  return [];
+}
+function spDocId(uid,id){return encodeURIComponent(String(uid)+'__'+String(id))}
+let spTypesBusy=false,spTypesAgain=false;
+async function spPushTypes(){
+  if(!S.space||!fb)return;if(spTypesBusy){spTypesAgain=true;return}spTypesBusy=true;
+  const {F,db,uid}=fb,code=S.space.code;
+  try{
+    for(const type of SP_EXTRA_TYPES){
+      if(!S.space||S.space.code!==code)break;
+      if(!spExtraReady[type]||!spNormPrefs(S.space.sharePrefs,true)[type])continue;
+      const records=spBuildLocalRows(type),current=new Map(),known=spExtraCloud[type]||{},writes=[],ownerName=String(S.space.name||(S.profile&&S.profile.name)||'عضو').slice(0,40);
+      records.forEach(r=>{const id=String(r.localId);current.set(id,r);const hash=JSON.stringify([r.payload,ownerName]);if(!known[id]||known[id].hash!==hash)writes.push({op:'set',id,docId:spDocId(uid,id),hash,payload:r.payload,ownerName})});
+      Object.entries(known).forEach(([id,v])=>{if(!current.has(id))writes.push({op:'delete',id,docId:v.docId})});
+      for(let i=0;i<writes.length;i+=400){const chunk=writes.slice(i,i+400),b=F.writeBatch(db);chunk.forEach(w=>{const ref=F.doc(db,'spaces',code,'sharedData',type,'items',w.docId);if(w.op==='delete')b.delete(ref);else b.set(ref,{kind:type,localId:w.id,ownerUid:uid,ownerName:w.ownerName,payload:w.payload,updatedAt:F.serverTimestamp()})});await b.commit();chunk.forEach(w=>{if(w.op==='delete')delete spExtraCloud[type][w.id];else spExtraCloud[type][w.id]={docId:w.docId,hash:w.hash}})}
+    }
+  }catch(e){spSetStatus(e&&e.code==='permission-denied'?'denied':'err')}
+  finally{spTypesBusy=false;if(spTypesAgain){spTypesAgain=false;setTimeout(spPushTypes,180)}}
+}
+async function spEnsureMemberProfile(f,code){
+  const {F,db,uid}=f,ref=F.doc(db,'spaces',code,'members',uid),snap=await F.getDoc(ref),nm=String(S.space.name||(S.profile&&S.profile.name)||'عضو').slice(0,24);
+  let prefs=spNormPrefs(S.space.sharePrefs,true);
+  if(snap.exists()){
+    const d=snap.data()||{};if(d.sharePrefs&&typeof d.sharePrefs==='object')prefs=spNormPrefs(d.sharePrefs,true);
+    if(!d.sharePrefs||!spPrefSame(d.sharePrefs,prefs))await F.setDoc(ref,{uid,name:nm,sharePrefs:prefs,updatedAt:F.serverTimestamp()},{merge:true});
+  }else await F.setDoc(ref,{uid,name:nm,sharePrefs:prefs,updatedAt:F.serverTimestamp()});
+  S.space.sharePrefs=prefs;S.space.shareDraft={...prefs};S.space.uid=uid;spProfileReady=true;lsSet(KEY,JSON.stringify(S));
 }
 async function spListen(){
-  if(!S.space||spUnsub) return;
-  spSetStatus('sync');
-  let f; try{f=await fbInit()}catch(e){spSetStatus('off');return}
-  if(!S.space||spUnsub) return;
-  spReady=false; spHash={};
-  const {F,db}=f, code=S.space.code;
-  spUnsub=F.onSnapshot(F.collection(db,'spaces',code,'expenses'),snap=>{
-    if(!S.space||S.space.code!==code) return;
-    spApply(snap); spReady=true; spSetStatus((snap.metadata.fromCache&&!navigator.onLine)?'off':'on'); spPush();
-  },err=>{spSetStatus(err&&err.code==='permission-denied'?'denied':'err')});
+  if(!S.space||spUnsub)return;spSetStatus('sync');let f;try{f=await fbInit()}catch(e){spSetStatus('off');return}if(!S.space||spUnsub)return;
+  spReady=false;spHash={};spProfileReady=false;const {F,db}=f,code=S.space.code;
+  try{await spEnsureMemberProfile(f,code)}catch(e){spProfileReady=false}
+  spUnsub=F.onSnapshot(F.collection(db,'spaces',code,'expenses'),snap=>{if(!S.space||S.space.code!==code)return;spApply(snap);spReady=true;spSetStatus((snap.metadata.fromCache&&!navigator.onLine)?'off':'on');spPush()},err=>{spSetStatus(err&&err.code==='permission-denied'?'denied':'err')});
+  SP_EXTRA_TYPES.forEach(type=>{
+    spExtraReady[type]=false;
+    const unsub=F.onSnapshot(F.collection(db,'spaces',code,'sharedData',type,'items'),snap=>{
+      if(!S.space||S.space.code!==code)return;const own={};
+      spExtraData[type]=snap.docs.map(docSnap=>{const d=docSnap.data()||{},row={docId:docSnap.id,...d};if(d.ownerUid===f.uid)own[String(d.localId)]={docId:docSnap.id,hash:JSON.stringify([d.payload||{},d.ownerName||''])};return row}).filter(x=>x.payload&&!x.deleted);
+      spExtraCloud[type]=own;spExtraReady[type]=true;renderSpace();spPushTypes();
+    },err=>{if(err&&err.code==='permission-denied')spSetStatus('denied');else spSetStatus('err')});spExtraUnsubs.push(unsub);
+  });
+  spUnsubP=F.onSnapshot(F.collection(db,'spaces',code,'members'),snap=>{if(!S.space||S.space.code!==code)return;spMemberProfiles=snap.docs.map(d=>({uid:d.id,...(d.data()||{})}));renderSpace()},()=>{});
   spUnsubM=F.onSnapshot(F.doc(db,'spaces',code),s=>{
-    const data=s.data()||{};spMembers=(data.memberIds||[]).length;spOwner=data.owner===f.uid;
+    if(!S.space||S.space.code!==code)return;const data=s.data()||{};spMembers=(data.memberIds||[]).length;spOwner=data.owner===f.uid;
     if(spOwner&&!spUnsubR){spRequestsPrimed=false;spUnsubR=F.onSnapshot(F.collection(db,'spaces',code,'joinRequests'),snap=>{
-      if(!S.space||S.space.code!==code||!spOwner) return;
-      if(spRequestsPrimed) snap.docChanges().forEach(ch=>{const d=ch.doc.data()||{};if(ch.type==='added'&&d.status==='pending')toast(`طلب انضمام جديد من ${d.name||'عضو'}`)});
-      spRequestsPrimed=true;
-      spReqErr=false;spRequests=snap.docs.map(d=>({uid:d.id,...(d.data()||{})})).filter(r=>r.status==='pending');renderSpace();
+      if(!S.space||S.space.code!==code||!spOwner)return;
+      if(spRequestsPrimed)snap.docChanges().forEach(ch=>{const d=ch.doc.data()||{};if(ch.type==='added'&&d.status==='pending')toast(`طلب انضمام جديد من ${d.name||'عضو'}`)});
+      spRequestsPrimed=true;spReqErr=false;spRequests=snap.docs.map(d=>({uid:d.id,...(d.data()||{})})).filter(r=>r.status==='pending');renderSpace();
     },()=>{spReqErr=true;spRequests=[];renderSpace()})}
-    if(!spOwner&&spUnsubR){spUnsubR();spUnsubR=null;spRequests=[]}
-    renderSpace();
+    if(!spOwner&&spUnsubR){spUnsubR();spUnsubR=null;spRequests=[]}renderSpace();
   },()=>{});
 }
-function openSpSheet(mode){
-  spMode=mode; $('#spTitle').textContent=mode==='create'?'إنشاء مساحة مشتركة':'الانضمام لمساحة';
-  $('#spCodeWrap').hidden=mode!=='join'; $('#spGo').textContent=mode==='create'?'إنشاء':'انضمام';
-  $('#spName').value=(S.profile&&S.profile.name)||''; $('#spCodeIn').value=''; $('#spErr').textContent='';
-  openSheetEl('spSheet');
-}
-$('#spCreate').onclick=()=>openSpSheet('create');
-$('#spJoin').onclick=()=>openSpSheet('join');
-$('#spCancel').onclick=closeSheets;
+function openSpSheet(mode){spMode=mode;$('#spTitle').textContent=mode==='create'?'إنشاء مساحة مشتركة':'الانضمام لمساحة';$('#spCodeWrap').hidden=mode!=='join';$('#spGo').textContent=mode==='create'?'إنشاء':'إرسال طلب الانضمام';$('#spName').value=(S.profile&&S.profile.name)||'';$('#spCodeIn').value='';$('#spErr').textContent='';openSheetEl('spSheet')}
+$('#spCreate').onclick=()=>openSpSheet('create');$('#spJoin').onclick=()=>openSpSheet('join');$('#spCancel').onclick=closeSheets;
 $('#spGo').onclick=async()=>{
-  const btn=$('#spGo'); if(btn.disabled) return; $('#spErr').textContent='';
-  const name=$('#spName').value.trim().replace(/\s+/g,' ').slice(0,24); let code='';
-  if(spMode==='join'){
-    if(!name){$('#spErr').textContent='اكتب اسمك عشان صاحب المساحة يعرف مين مقدم الطلب';return}
-    code=spNorm($('#spCodeIn').value); if(!/^[A-HJ-NP-Z2-9]{10}$/.test(code)){$('#spErr').textContent='الكود لازم يكون 10 حروف وأرقام';return}
-  }
-  btn.disabled=true; const t0=btn.textContent; btn.textContent='لحظة...';
+  const btn=$('#spGo');if(btn.disabled)return;$('#spErr').textContent='';const name=$('#spName').value.trim().replace(/\s+/g,' ').slice(0,24);let code='';
+  if(spMode==='join'){if(!name){$('#spErr').textContent='اكتب اسمك عشان صاحب المساحة يعرف مين مقدم الطلب';return}code=spNorm($('#spCodeIn').value);if(!/^[A-HJ-NP-Z2-9]{10}$/.test(code)){$('#spErr').textContent='الكود لازم يكون 10 حروف وأرقام';return}}
+  btn.disabled=true;const t0=btn.textContent;btn.textContent='لحظة...';
   try{
-    const f=await withTimeout(fbInit(),15000), {F,db}=f;
+    const f=await withTimeout(fbInit(),15000),{F,db}=f,prefs=spNormPrefs(S.spaceRequest&&S.spaceRequest.status==='rejected'?S.spaceRequest.sharePrefs:S.spaceShareDraft,false);
     if(spMode==='create'){
-      code=spGen();
-      await withTimeout(F.setDoc(F.doc(db,'spaces',code),{owner:f.uid,memberIds:[f.uid],createdAt:F.serverTimestamp()}),12000);
-      S.space={code,uid:f.uid,name,auto:false,old:S.expenses.map(e=>e.id)};
-      save();closeSheets();renderSpace();spListen();toast('اتعملت المساحة. ابعت الكود لصاحبك');
+      code=spGen();const spaceRef=F.doc(db,'spaces',code),memberRef=F.doc(db,'spaces',code,'members',f.uid),batch=F.writeBatch(db);
+      batch.set(spaceRef,{owner:f.uid,memberIds:[f.uid],createdAt:F.serverTimestamp()});batch.set(memberRef,{uid:f.uid,name,sharePrefs:prefs,updatedAt:F.serverTimestamp()});await withTimeout(batch.commit(),12000);
+      S.space={code,uid:f.uid,name,auto:false,old:S.expenses.map(e=>e.id),sharePrefs:prefs,shareDraft:{...prefs}};S.spaceRequest=null;S.spaceShareDraft=null;save();closeSheets();renderSpace();spListen();toast('اتعملت المساحة. ابعت الكود لصاحبك');
     }else{
-      const reqRef=F.doc(db,'spaces',code,'joinRequests',f.uid), snap=await withTimeout(F.getDoc(reqRef),12000);
+      const reqRef=F.doc(db,'spaces',code,'joinRequests',f.uid),snap=await withTimeout(F.getDoc(reqRef),12000);
       if(snap.exists()&&snap.data().status==='pending'){
-        S.spaceRequest={code,uid:f.uid,name,status:'pending'};save();closeSheets();renderSpace();spWatchJoinRequest();toast('طلب الانضمام مستني موافقة صاحب المساحة');
+        const requested=spNormPrefs(snap.data().sharePrefs||prefs,true);S.spaceRequest={code,uid:f.uid,name,status:'pending',sharePrefs:requested};save();closeSheets();renderSpace();spWatchJoinRequest();toast('طلب الانضمام مستني موافقة صاحب المساحة');
       }else if(snap.exists()&&snap.data().status==='approved'){
-        let ids=[];
-        try{const spaceSnap=await withTimeout(F.getDoc(F.doc(db,'spaces',code)),12000);ids=spaceSnap.exists()?(spaceSnap.data().memberIds||[]):[]}
-        catch(e){if(!e||e.code!=='permission-denied') throw e}
-        if(ids.includes(f.uid)){spActivateJoin(code,f.uid,name)}else{
-          await withTimeout(F.setDoc(reqRef,{uid:f.uid,name,status:'pending',requestedAt:F.serverTimestamp()}),12000);
-          S.spaceRequest={code,uid:f.uid,name,status:'pending'};save();closeSheets();renderSpace();spWatchJoinRequest();toast('طلب الانضمام مستني موافقة صاحب المساحة');
+        let ids=[];try{const spaceSnap=await withTimeout(F.getDoc(F.doc(db,'spaces',code)),12000);ids=spaceSnap.exists()?(spaceSnap.data().memberIds||[]):[]}catch(e){if(!e||e.code!=='permission-denied')throw e}
+        if(ids.includes(f.uid))spActivateJoin(code,f.uid,name,snap.data().sharePrefs||prefs);else{
+          await withTimeout(F.setDoc(reqRef,{uid:f.uid,name,status:'pending',sharePrefs:prefs,requestedAt:F.serverTimestamp()}),12000);S.spaceRequest={code,uid:f.uid,name,status:'pending',sharePrefs:prefs};save();closeSheets();renderSpace();spWatchJoinRequest();toast('طلب الانضمام مستني موافقة صاحب المساحة');
         }
       }else{
-        await withTimeout(F.setDoc(reqRef,{uid:f.uid,name,status:'pending',requestedAt:F.serverTimestamp()}),12000);
-        S.spaceRequest={code,uid:f.uid,name,status:'pending'};save();closeSheets();renderSpace();spWatchJoinRequest();toast('طلب الانضمام اتبعت لصاحب المساحة');
+        await withTimeout(F.setDoc(reqRef,{uid:f.uid,name,status:'pending',sharePrefs:prefs,requestedAt:F.serverTimestamp()}),12000);S.spaceRequest={code,uid:f.uid,name,status:'pending',sharePrefs:prefs};save();closeSheets();renderSpace();spWatchJoinRequest();toast('طلب الانضمام اتبعت لصاحب المساحة');
       }
     }
-  }catch(e){$('#spErr').textContent=spErrMsg(e)} finally{btn.disabled=false;btn.textContent=t0}
+  }catch(e){$('#spErr').textContent=spErrMsg(e)}finally{btn.disabled=false;btn.textContent=t0}
 };
-function armBtn(b,idle,confirmTxt,fn){const id=()=>b.dataset.idle||idle; b.onclick=()=>{
-  if(!b.dataset.arm){b.dataset.arm='1';b.textContent=confirmTxt;clearTimeout(b._t);b._t=setTimeout(()=>{delete b.dataset.arm;b.textContent=id()},4000);return}
-  delete b.dataset.arm;clearTimeout(b._t);b.textContent=id();fn()}}
+function armBtn(b,idle,confirmTxt,fn){const id=()=>b.dataset.idle||idle;b.onclick=()=>{if(!b.dataset.arm){b.dataset.arm='1';b.textContent=confirmTxt;clearTimeout(b._t);b._t=setTimeout(()=>{delete b.dataset.arm;b.textContent=id()},4000);return}delete b.dataset.arm;clearTimeout(b._t);b.textContent=id();fn()}}
 armBtn($('#spLeave'),'الخروج من المساحة','دوس تاني للتأكيد',async()=>{
-  const code=S.space&&S.space.code, f=fb; spStop();
-  if(f&&code){try{await withTimeout(f.F.updateDoc(f.F.doc(f.db,'spaces',code),{memberIds:f.F.arrayRemove(f.uid)}),6000)}catch(e){}}
-  S.expenses.forEach(e=>{delete e.sp}); S.space=null; save(); renderSpace(); renderAll(); toast('خرجت من المساحة. مصاريفك فضلت عندك');
+  const code=S.space&&S.space.code,f=fb;spStop();if(f&&code){try{await withTimeout(f.F.updateDoc(f.F.doc(f.db,'spaces',code),{memberIds:f.F.arrayRemove(f.uid)}),6000)}catch(e){}}
+  S.expenses.forEach(e=>{delete e.sp});S.space=null;save();renderSpace();renderAll();toast('خرجت من المساحة. بياناتك المحلية فضلت عندك');
 });
 armBtn($('#spUpload'),'مشاركة مصاريفي يدويًا','دوس تاني للتأكيد',()=>{
-  if(!S.space) return;
-  const code=S.space.code, pending=S.expenses.filter(e=>!e.sp&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).map(e=>e.id);
-  S.space.manual=Array.from(new Set([...(S.space.manual||[]),...pending]));
-  save(); spPush(); renderSpace(); toast('بنشارك المصاريف المحددة للمساحة');
+  if(!S.space||!spNormPrefs(S.space.sharePrefs,true).expenses)return;
+  const pending=S.expenses.filter(e=>!e.sp&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).map(e=>e.id);S.space.manual=Array.from(new Set([...(S.space.manual||[]),...pending]));save();spPush();renderSpace();toast('بنشارك المصاريف المحددة للمساحة');
 });
-$('#spAuto').onchange=e=>{if(!S.space) return; S.space.auto=e.target.checked;
-  save(); spPush();
-  toast(S.space.auto?'المشاركة التلقائية مفعلة للمصاريف القديمة والجديدة':'اتوقفت المشاركة التلقائية؛ المصاريف المشتركة تفضل مشتركة والجديدة تبقى خاصة');
-  renderSpace();
+$('#spAuto').onchange=e=>{if(!S.space)return;if(!spNormPrefs(S.space.sharePrefs,true).expenses){e.target.checked=false;return}S.space.auto=e.target.checked;save();spPush();toast(S.space.auto?'المشاركة التلقائية مفعلة للمصاريف الجديدة':'اتوقفت المشاركة التلقائية؛ المصاريف المشتركة تفضل ظاهرة والجديدة تبقى خاصة');renderSpace()};
+$('#spTypeList').onchange=e=>{
+  const type=e.target&&e.target.dataset&&e.target.dataset.spType;if(!type)return;const prefs=spDraftPrefs();prefs[type]=!!e.target.checked;
+  if(S.space){S.space.shareDraft=prefs;save()}else if(S.spaceRequest){S.spaceRequest.sharePrefs=prefs;save()}else{S.spaceShareDraft=prefs;save()}renderSpace();
 };
-$('#spReqList').onclick=e=>{
-  const a=e.target.closest('[data-sp-accept]'), r=e.target.closest('[data-sp-reject]');
-  if(a) spDecideRequest(a.dataset.spAccept,true); else if(r) spDecideRequest(r.dataset.spReject,false);
+$('#spSavePrefs').onclick=async()=>{
+  if(!S.space)return;if(!fb){toast('اتصل بالإنترنت أولًا لحفظ اختيارات المشاركة');return}const btn=$('#spSavePrefs'),prefs=spNormPrefs(S.space.shareDraft||S.space.sharePrefs,true),old=spNormPrefs(S.space.sharePrefs,true);if(spPrefSame(prefs,old)){renderSpace();return}
+  btn.disabled=true;const text=btn.textContent;btn.textContent='جارٍ الحفظ...';
+  try{
+    const {F,db,uid}=fb,ref=F.doc(db,'spaces',S.space.code,'members',uid);await withTimeout(F.setDoc(ref,{uid,name:String(S.space.name||(S.profile&&S.profile.name)||'عضو').slice(0,24),sharePrefs:prefs,updatedAt:F.serverTimestamp()},{merge:true}),12000);
+    S.space.sharePrefs=prefs;S.space.shareDraft={...prefs};if(!prefs.expenses)S.space.auto=false;save();spQueue();renderSpace();toast('اتحفظت اختيارات المشاركة');
+  }catch(e){toast(spErrMsg(e))}finally{btn.disabled=false;btn.textContent=text}
 };
+$('#spReqList').onclick=e=>{const a=e.target.closest('[data-sp-accept]'),r=e.target.closest('[data-sp-reject]');if(a)spDecideRequest(a.dataset.spAccept,true);else if(r)spDecideRequest(r.dataset.spReject,false)};
 $('#spCancelRequest').onclick=async()=>{
   const req=S.spaceRequest;if(!req)return;
-  try{
-    if(req.status==='pending'){
-      const f=await withTimeout(fbInit(),12000), ref=f.F.doc(f.db,'spaces',req.code,'joinRequests',req.uid);
-      await withTimeout(f.F.updateDoc(ref,{status:'cancelled',resolvedBy:f.uid,resolvedAt:f.F.serverTimestamp()}),12000);
-    }
-    spStopJoinWatch();S.spaceRequest=null;save();renderSpace();
+  try{if(req.status==='pending'){const f=await withTimeout(fbInit(),12000),ref=f.F.doc(f.db,'spaces',req.code,'joinRequests',req.uid);await withTimeout(f.F.updateDoc(ref,{status:'cancelled',resolvedBy:f.uid,resolvedAt:f.F.serverTimestamp()}),12000)}
+    S.spaceShareDraft=spNormPrefs(req.sharePrefs,true);spStopJoinWatch();S.spaceRequest=null;save();renderSpace();
   }catch(e){toast(e&&e.code==='permission-denied'?'تعذر إلغاء الطلب. تأكد من نشر قواعد Firestore الجديدة':spErrMsg(e))}
 };
-$('#spCopy').onclick=async()=>{const c=spFmt(S.space.code);
-  try{await navigator.clipboard.writeText(c)}catch(e){const t=document.createElement('textarea');t.value=c;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove()}
-  toast('اتنسخ الكود: '+c)};
-window.addEventListener('online',()=>{if(S.space&&!spUnsub) spListen()});
+$('#spCopy').onclick=async()=>{const c=spFmt(S.space.code);try{await navigator.clipboard.writeText(c)}catch(e){const t=document.createElement('textarea');t.value=c;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove()}toast('اتنسخ الكود: '+c)};
+window.addEventListener('online',()=>{if(S.space&&!spUnsub)spListen();else if(S.space&&spUnsub&&spReady){spPush();spPushTypes()}});
 
 /* Boot */
 applyCurrency();applyTheme();renderAll();
