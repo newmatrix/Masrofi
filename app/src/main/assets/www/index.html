@@ -2928,44 +2928,77 @@ function renderSpace(){
   const on=!!S.space; $('#spOff').hidden=on; $('#spOn').hidden=!on; $('#wipeSpNote').hidden=!on;
   const st={on:'متصل',sync:'بيتزامن...',off:'أوفلاين',err:'مشكلة في الاتصال',denied:'مش مسموح'};
   $('#spStatus').textContent=on?(st[spSt]||''):'';
-  if(on){const oldSet=new Set(S.space.old||[]), priv=S.expenses.filter(e=>!e.sp&&oldSet.has(e.id)).length, up=$('#spUpload');
-    $('#spAuto').checked=!!S.space.auto; up.hidden=!!S.space.auto||!priv; up.dataset.idle=`رفع مصاريفي القديمة (${priv})`; if(!up.dataset.arm) up.textContent=up.dataset.idle;
+  if(on){const oldSet=new Set(S.space.old||[]), priv=S.expenses.filter(e=>!e.sp&&oldSet.has(e.id)&&!Object.prototype.hasOwnProperty.call(spHash,e.id)).length, up=$('#spUpload');
+    $('#spAuto').checked=!!S.space.auto; up.hidden=!!S.space.auto||!priv; up.dataset.idle=`مشاركة مصاريفي القديمة (${priv})`; if(!up.dataset.arm) up.textContent=up.dataset.idle;
     $('#spCode').textContent=spFmt(S.space.code);
     $('#spInfo').textContent=(spMembers?`عدد الأعضاء: ${spMembers}. `:'')+(spSt==='denied'?'اتفصلت من المساحة. اخرج منها وانضم تاني بالكود.':'أي مصروف جديد بتضيفه بيظهر عند الباقيين.')}
 }
 function spQueue(){if(!S.space) return; clearTimeout(spTimer); spTimer=setTimeout(spPush,700)}
 function spStop(){if(spUnsub){spUnsub();spUnsub=null} if(spUnsubM){spUnsubM();spUnsubM=null} spReady=false; spHash={}; clearTimeout(spTimer)}
 function spDetach(){if(!S.space) return; spStop(); S.expenses.forEach(e=>{delete e.sp}); S.space=null; renderSpace()}
+function spClearOldId(id){
+  if(!S.space) return false;
+  let changed=false;
+  ['old','manual'].forEach(k=>{const a=Array.isArray(S.space[k])?S.space[k]:[]; if(a.includes(id)){S.space[k]=a.filter(x=>x!==id);changed=true}});
+  return changed;
+}
 function spApply(snap){
-  const code=S.space.code; let changed=false;
+  const code=S.space.code; let changed=false, stateChanged=false;
   snap.docChanges().forEach(ch=>{
     const id=ch.doc.id, d=ch.doc.data()||{}, i=S.expenses.findIndex(e=>e.id===id);
-    if(d.del||ch.type==='removed'){ if(i>=0){S.expenses.splice(i,1);changed=true} delete spHash[id]; return }
+    if(d.del||ch.type==='removed'){ if(i>=0){S.expenses.splice(i,1);changed=true} delete spHash[id]; stateChanged=spClearOldId(id)||stateChanged; return }
     const e={id,amount:+d.amount||0,cat:CAT[d.cat]?d.cat:'other',note:d.note||'',ts:+d.ts||Date.now(),sp:code,by:d.by,byName:d.byName}; if(d.pay) e.pay=d.pay;
     const h=hashE(e);
-    if(i>=0&&hashE(S.expenses[i])===h){spHash[id]=h; if(!S.expenses[i].by){S.expenses[i].by=d.by;S.expenses[i].byName=d.byName;S.expenses[i].sp=code;changed=true} return}
+    if(i>=0&&hashE(S.expenses[i])===h){spHash[id]=h; if(!S.expenses[i].by){S.expenses[i].by=d.by;S.expenses[i].byName=d.byName;S.expenses[i].sp=code;changed=true} stateChanged=spClearOldId(id)||stateChanged; return}
     if(i>=0) S.expenses[i]=e; else S.expenses.push(e);
-    spHash[id]=h; changed=true;
+    spHash[id]=h; changed=true; stateChanged=spClearOldId(id)||stateChanged;
   });
-  if(changed){save();renderAll();setTimeout(checkAlerts,500)}
+  if(changed||stateChanged) save();
+  if(changed){renderAll();setTimeout(checkAlerts,500)} else if(stateChanged) renderSpace();
 }
-function spPush(){
+let spPushBusy=false, spPushAgain=false;
+async function spPush(){
+  clearTimeout(spTimer);
   if(!S.space||!fb||!spReady) return;
-  const {F,db,uid}=fb, code=S.space.code, old=new Set(S.space.old||[]), nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
-  const writes=[], cur=new Set(); let assigned=false;
-  S.expenses.forEach(e=>{
-    if(!e.sp){ if(old.has(e.id)) return; e.sp=code; e.by=uid; e.byName=nm; assigned=true }
-    if(e.sp!==code) return;
-    cur.add(e.id); const h=hashE(e);
-    if(spHash[e.id]!==h) writes.push([e.id,{amount:+e.amount,cat:e.cat,note:String(e.note||'').slice(0,200),pay:e.pay||'',ts:+e.ts,by:e.by||uid,byName:String(e.byName||nm).slice(0,40),del:false,upd:F.serverTimestamp()},h]);
-  });
-  Object.keys(spHash).forEach(id=>{if(!cur.has(id)) writes.push([id,{del:true,upd:F.serverTimestamp()},null])});
-  if(assigned) lsSet(KEY,JSON.stringify(S));
-  for(let i=0;i<writes.length;i+=400){
-    const chunk=writes.slice(i,i+400), b=F.writeBatch(db);
-    chunk.forEach(([id,data])=>b.set(F.doc(db,'spaces',code,'expenses',id),data));
-    chunk.forEach(([id,,h])=>{if(h===null) delete spHash[id]; else spHash[id]=h});
-    b.commit().catch(e=>spSetStatus(e&&e.code==='permission-denied'?'denied':'err'));
+  if(spPushBusy){spPushAgain=true;return}
+  spPushBusy=true;
+  const {F,db,uid}=fb, code=S.space.code;
+  try{
+    const old=new Set(S.space.old||[]), manual=new Set(S.space.manual||[]), nm=S.space.name||(S.profile&&S.profile.name)||'عضو';
+    const writes=[], cur=new Set();
+    S.expenses.forEach(e=>{
+      const isOld=old.has(e.id), serverKnown=Object.prototype.hasOwnProperty.call(spHash,e.id);
+      if(e.sp&&e.sp!==code) return;
+      if(isOld&&!serverKnown&&!S.space.auto&&!manual.has(e.id)) return;
+      // Do not resurrect a legacy locally-marked record if it is absent from the space snapshot.
+      if(e.sp===code&&!serverKnown&&!isOld) return;
+      cur.add(e.id); const h=hashE(e);
+      if(spHash[e.id]!==h) writes.push([e.id,{amount:+e.amount,cat:e.cat,note:String(e.note||'').slice(0,200),pay:e.pay||'',ts:+e.ts,by:e.by||uid,byName:String(e.byName||nm).slice(0,40),del:false,upd:F.serverTimestamp()},h]);
+    });
+    Object.keys(spHash).forEach(id=>{if(!cur.has(id)) writes.push([id,{del:true,upd:F.serverTimestamp()},null])});
+    for(let i=0;i<writes.length;i+=400){
+      const chunk=writes.slice(i,i+400), b=F.writeBatch(db);
+      chunk.forEach(([id,data])=>b.set(F.doc(db,'spaces',code,'expenses',id),data));
+      await b.commit();
+      let localChanged=false;
+      chunk.forEach(([id,,h])=>{
+        if(h===null){delete spHash[id];return}
+        spHash[id]=h;
+        const e=S.expenses.find(x=>x.id===id);
+        if(e&&S.space&&S.space.code===code){
+          if(e.sp!==code){e.sp=code;localChanged=true}
+          if(!e.by){e.by=uid;localChanged=true}
+          if(!e.byName){e.byName=nm;localChanged=true}
+          if(spClearOldId(id)) localChanged=true;
+        }
+      });
+      if(localChanged&&S.space&&S.space.code===code) lsSet(KEY,JSON.stringify(S));
+    }
+    renderSpace();
+  }catch(e){spSetStatus(e&&e.code==='permission-denied'?'denied':'err')}
+  finally{
+    spPushBusy=false;
+    if(spPushAgain){spPushAgain=false;spQueue()}
   }
 }
 async function spListen(){
@@ -3013,9 +3046,17 @@ armBtn($('#spLeave'),'الخروج من المساحة','دوس تاني للت�
   if(f&&code){try{await withTimeout(f.F.updateDoc(f.F.doc(f.db,'spaces',code),{memberIds:f.F.arrayRemove(f.uid)}),6000)}catch(e){}}
   S.expenses.forEach(e=>{delete e.sp}); S.space=null; save(); renderSpace(); renderAll(); toast('خرجت من المساحة. مصاريفك فضلت عندك');
 });
-armBtn($('#spUpload'),'رفع مصاريفي القديمة','دوس تاني للتأكيد',()=>{if(!S.space) return; S.space.old=[]; save(); spPush(); renderSpace(); toast('بنرفع مصاريفك القديمة للمساحة')});
+armBtn($('#spUpload'),'مشاركة مصاريفي القديمة','دوس تاني للتأكيد',()=>{
+  if(!S.space) return;
+  const pending=(S.space.old||[]).filter(id=>S.expenses.some(e=>e.id===id)&&!Object.prototype.hasOwnProperty.call(spHash,id));
+  S.space.manual=Array.from(new Set([...(S.space.manual||[]),...pending]));
+  save(); spPush(); renderSpace(); toast('بنرفع مصاريفك القديمة للمساحة');
+});
 $('#spAuto').onchange=e=>{if(!S.space) return; S.space.auto=e.target.checked;
-  if(S.space.auto){S.space.old=[]; save(); spPush(); toast('هيترفعوا مصاريفك القديمة تلقائيًا')} else {save(); toast('اتقفل الرفع التلقائي')} renderSpace()};
+  save(); spPush();
+  toast(S.space.auto?'هيترفعوا المصاريف القديمة تلقائيًا':'اتقفل الرفع التلقائي؛ المصاريف اللي اترفعِت هتفضل مشتركة');
+  renderSpace();
+};
 $('#spCopy').onclick=async()=>{const c=spFmt(S.space.code);
   try{await navigator.clipboard.writeText(c)}catch(e){const t=document.createElement('textarea');t.value=c;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove()}
   toast('اتنسخ الكود: '+c)};
