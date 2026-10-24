@@ -189,6 +189,9 @@ button{cursor:pointer}
 /* Settings */
 
 .sp-type-list{margin-top:8px}
+.sp-setup-prefs{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sp-setup-prefs h3{margin:0;font-size:.98rem}
+.sp-setup-prefs>.hint{margin:5px 0 0;font-size:.82rem}
 .sp-type-row{display:flex;align-items:center;gap:10px;padding:12px 2px;border-top:1px solid var(--line);cursor:pointer}
 .sp-type-row:first-child{border-top:0}
 .sp-type-row .sp-ti{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);font-size:1.12rem}
@@ -196,7 +199,7 @@ button{cursor:pointer}
 .sp-type-row .sp-tt b{display:block;font-size:.94rem}
 .sp-type-row .sp-tt small{display:block;color:var(--muted);font-size:.78rem;line-height:1.45;margin-top:2px}
 .sp-type-row .sp-count{display:block;color:var(--muted);font-size:.73rem;margin-top:3px}
-.sp-type-row input{width:20px;height:20px;flex:none;accent-color:var(--brand)}
+.sp-type-row .switch{margin-inline-start:4px}
 .sp-share-note{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:.8rem;line-height:1.55}
 .sp-save-prefs{width:100%;margin-top:12px}
 .sp-shared-data{margin-top:10px}
@@ -855,46 +858,6 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
 
   </section>
 
-  <!-- المساحة المشتركة -->
-  <section class="view" id="v-space" aria-label="المساحة المشتركة">
-    <div class="topbar"><h1>المساحة المشتركة</h1></div>
-    <div class="card" id="spaceCard">
-      <div class="card-h"><h3>إدارة المساحة</h3><span class="hint" id="spStatus"></span></div>
-      <div id="spOff">
-        <p class="hint">أعمل مساحتك الخاصة أو انصم بكود. وأختار البيانات اللي عايز تشاركها</p>
-        <div class="sp-row" style="margin-top:12px"><button class="btn primary" id="spCreate">إنشاء مساحة</button><button class="btn" id="spJoin">انضمام بكود</button></div>
-      </div>
-      <div id="spWait" hidden>
-        <p class="hint" id="spWaitText"></p>
-        <button class="linkbtn wl-link" id="spCancelRequest">إلغاء الطلب</button>
-      </div>
-      <div id="spOn" hidden>
-        <p class="hint">كود المساحة. ابعته للشخص التاني عشان يرسل طلب انضمام، وموافقتك مطلوبة.</p>
-        <div class="sp-code" id="spCode"></div>
-        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>مشاركة المصاريف الجديدة تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="مشاركة المصاريف تلقائيًا"><i></i></label></div></div>
-        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>مشاركة مصاريفي يدويًا</button>
-        <p class="hint" id="spInfo" style="margin-top:10px"></p>
-        <div id="spReqWrap" hidden style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
-          <strong>طلبات الانضمام</strong>
-          <div id="spReqList" class="sp-req-list"></div>
-        </div>
-        <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
-      </div>
-    </div>
-    <div class="card" id="spPrefsCard">
-      <h3 id="spPrefsTitle">البيانات اللي هشاركها</h3>
-      <p class="hint" id="spPrefsIntro"></p>
-      <div id="spTypeList" class="sp-type-list"></div>
-      <p class="sp-share-note" id="spPrefsNote">تفعيل نوع بيانات يرفع السجلات الموجودة والجديدة. عند إيقافه تظل النسخ التي سبق رفعها ظاهرة، وتتوقف مزامنة التغييرات الجديدة.</p>
-      <button class="btn primary sp-save-prefs" id="spSavePrefs" hidden>حفظ اختيارات المشاركة</button>
-    </div>
-    <div class="card" id="spDataCard" hidden>
-      <h3>البيانات المشتركة</h3>
-      <p class="hint">تظهر هنا البيانات التي شاركها أعضاء المساحة. تعديل السجلات يكون من جهاز صاحبها.</p>
-      <div id="spSharedData" class="sp-shared-data"></div>
-    </div>
-  </section>
-
   <!-- الإعدادات -->
   <section class="view" id="v-settings" aria-label="الإعدادات">
     <div class="topbar"><h1>الإعدادات</h1></div>
@@ -926,6 +889,43 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
       <p class="hint">دوس على أي طريقة عشان تخليها الافتراضية في المصاريف الجديدة، ودوسة مطولة عليها عشان تعدلها أو تحذفها.</p>
       <div id="payList" class="pay-grid"></div>
       <button class="btn add-cat" id="addPay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>إضافة طريقة دفع</button>
+    </div>
+
+
+    <div class="card" id="spaceCard">
+      <div class="card-h"><h3>مساحة مشتركة</h3><span class="hint" id="spStatus"></span></div>
+      <div id="spOff">
+        <p class="hint">أنشئ مساحة أو انضم بكود. تقدر تختار أنواع البيانات اللي توافق على مشاركتها.</p>
+        <div class="sp-row" style="margin-top:12px"><button class="btn primary" id="spCreate">إنشاء مساحة</button><button class="btn" id="spJoin">انضمام بكود</button></div>
+      </div>
+      <div id="spWait" hidden>
+        <p class="hint" id="spWaitText"></p>
+        <button class="linkbtn wl-link" id="spCancelRequest">إلغاء الطلب</button>
+      </div>
+      <div id="spOn" hidden>
+        <p class="hint">كود المساحة. ابعته للشخص التاني عشان يرسل طلب انضمام، وموافقتك مطلوبة.</p>
+        <div class="sp-code" id="spCode"></div>
+        <div class="sp-row"><button class="btn" id="spCopy">نسخ الكود</button><div class="sp-auto"><span>مشاركة المصاريف الجديدة تلقائيًا</span><label class="switch"><input type="checkbox" id="spAuto" aria-label="مشاركة المصاريف تلقائيًا"><i></i></label></div></div>
+        <button class="btn" id="spUpload" style="width:100%;margin-top:8px" hidden>مشاركة مصاريفي يدويًا</button>
+        <p class="hint" id="spInfo" style="margin-top:10px"></p>
+        <div id="spReqWrap" hidden style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
+          <strong>طلبات الانضمام</strong>
+          <div id="spReqList" class="sp-req-list"></div>
+        </div>
+        <button class="linkbtn wl-link" id="spLeave">الخروج من المساحة</button>
+      </div>
+    </div>
+    <div class="card" id="spPrefsCard" hidden>
+      <h3 id="spPrefsTitle">البيانات اللي هشاركها</h3>
+      <p class="hint" id="spPrefsIntro"></p>
+      <div id="spTypeList" class="sp-type-list"></div>
+      <p class="sp-share-note" id="spPrefsNote">تفعيل نوع بيانات يرفع السجلات الموجودة والجديدة. عند إيقافه تظل النسخ التي سبق رفعها ظاهرة، وتتوقف مزامنة التغييرات الجديدة.</p>
+      <button class="btn primary sp-save-prefs" id="spSavePrefs" hidden>حفظ اختيارات المشاركة</button>
+    </div>
+    <div class="card" id="spDataCard" hidden>
+      <h3>البيانات المشتركة</h3>
+      <p class="hint">تظهر هنا البيانات التي شاركها أعضاء المساحة. تعديل السجلات يكون من جهاز صاحبها.</p>
+      <div id="spSharedData" class="sp-shared-data"></div>
     </div>
 
     <div class="card">
@@ -1010,7 +1010,6 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
   <button data-tab="reports"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>التقارير</button>
   <button data-tab="debts"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg></span>التزاماتي</button>
   <button data-tab="me"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>أنا</button>
-  <button data-tab="space"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></span>المساحة</button>
   <button data-tab="settings"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>الإعدادات</button>
 </div></nav>
 
@@ -1165,6 +1164,12 @@ details.closed-list[open] summary::before{transform:rotate(-90deg)}
   <div id="spCodeWrap" hidden>
     <label class="wl-lab" for="spCodeIn">كود المساحة</label>
     <div class="field"><input id="spCodeIn" type="text" dir="ltr" maxlength="12" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="XXXXX-XXXXX" style="text-align:center;letter-spacing:.1em"></div>
+  </div>
+  <div class="sp-setup-prefs" id="spSetupPrefs">
+    <h3 id="spSetupTitle">اختيارات المشاركة</h3>
+    <p class="hint" id="spSetupIntro">حدد أنواع البيانات التي توافق على مشاركتها.</p>
+    <div id="spSetupTypeList" class="sp-type-list"></div>
+    <p class="sp-share-note">الأنواع اللي انت حددتها بس هي اللي هتظهر للطرف التاني. وأي نوع هتعطل مشاركته بعد كده هتفضل البيانات القديمة ظاهرة للطرف التاني.</p>
   </div>
   <label class="wl-lab" for="spName" style="margin-top:12px">اسمك في المساحة</label>
   <div class="field"><input id="spName" type="text" maxlength="24" placeholder="مثلاً محمد"></div>
@@ -1660,7 +1665,7 @@ function renderAll(){renderMe();renderHome();renderDebts();renderReports();if(!$
 
 /* Navigation */
 let tab='expenses';
-const TABS=['expenses','reports','debts','me','space','settings'];
+const TABS=['expenses','reports','debts','me','settings'];
 function go(t){
   if(t===tab && t!=='reports'){window.scrollTo({top:0,behavior:'smooth'});return}
   const dir=TABS.indexOf(t)-TABS.indexOf(tab); tab=t;
@@ -1670,10 +1675,9 @@ function go(t){
     if(on){v.style.setProperty('--dx',dir>0?'-24px':dir<0?'24px':'0px');v.classList.remove('active');void v.offsetWidth}
     v.classList.toggle('active',on)});
   document.querySelectorAll('.nav button').forEach(b=>{if(b.dataset.tab===t)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
-  $('#fab').hidden = t==='settings'||t==='me'||t==='space';
+  $('#fab').hidden = t==='settings'||t==='me';
   if(t==='reports'){showDetail(false);renderReports()}
   if(t==='debts') renderDebts();
-  if(t==='space') renderSpace();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
@@ -3006,14 +3010,23 @@ function fbInit(){
   return fbP;
 }
 function spSetStatus(s){spSt=s;renderSpace()}
+function spTypeRows(prefs,disabled=false){
+  return SP_SHARE_META.map(t=>{const count=spCountLocal(t.key);return `<label class="sp-type-row"><span class="sp-ti" aria-hidden="true">${t.icon}</span><span class="sp-tt"><b>${t.label}</b><small>${t.desc}</small><span class="sp-count">${count} ${t.key==='reports'?'فترة':'سجل'} موجود${count===1?'':'ة'} عندك</span></span><span class="switch sp-type-switch"><input type="checkbox" data-sp-type="${t.key}" ${prefs[t.key]?'checked':''} ${disabled?'disabled':''} aria-label="مشاركة ${t.label}"><i></i></span></label>`}).join('');
+}
+function spRenderSetupTypes(){
+  const prefs=spDraftPrefs();$('#spSetupTypeList').innerHTML=spTypeRows(prefs,false);
+  $('#spSetupTitle').textContent=spMode==='create'?'اختار البيانات اللي هتشاركها في المساحة':'اختار البيانات اللي هتشاركها بعد الانضمام';
+  $('#spSetupIntro').textContent=spMode==='create'?'اختار البيانات اللي هتشاركها مع الطرف التاني, وتقدر تسيب اي نوع مش محدد براحتك':'حدد اللي انت عايزه يظهر في المساحة المشتركة بينك وبين صاحب المساحة';
+}
 function spRenderShareTypes(){
   const list=$('#spTypeList'), on=!!S.space, req=!!S.spaceRequest, prefs=spDraftPrefs(), pending=req&&S.spaceRequest.status==='pending';
   const base=S.space?spNormPrefs(S.space.sharePrefs,true):req?spNormPrefs(S.spaceRequest.sharePrefs,true):spNormPrefs(S.spaceShareDraft,false);
   const dirty=on&&!spPrefSame(prefs,base);
-  $('#spPrefsTitle').textContent=on?'البيانات اللي هشاركها':req?'اختيارات المشاركة':'البيانات اللي هشاركها';
-  $('#spPrefsIntro').textContent=on?'اختار بياناتك أنت. كل عضو يحدد بنفسه إيه اللي يشاركه؛ تقدر تشوف بيانات الأعضاء اللي اختاروا المشاركة.':pending?'دي اختياراتك المرفقة بطلب الانضمام، وتبدأ المشاركة بعد موافقة صاحب المساحة.':'حدد هتشارك ايه قبل ماتنشء المساحة او تنضم لمساحة موجوده دلوقت';
-  list.innerHTML=SP_SHARE_META.map(t=>`<label class="sp-type-row"><span class="sp-ti" aria-hidden="true">${t.icon}</span><span class="sp-tt"><b>${t.label}</b><small>${t.desc}</small><span class="sp-count">${spCountLocal(t.key)} ${t.key==='reports'?'فترة':'سجل'} موجود${spCountLocal(t.key)===1?'':'ة'} عندك</span></span><input type="checkbox" data-sp-type="${t.key}" ${prefs[t.key]?'checked':''} ${pending?'disabled':''} aria-label="مشاركة ${t.label}"></label>`).join('');
-  $('#spPrefsNote').textContent='لو اخترت أي نوع بيانات هتتشارك سجلاته اللي موجوده دلوقت والجديدة. ولو شيلت علامة الصح هتفضل النسخ اللي اترفعت قبل كده موجوده عند الطرف التاني (ولكن البيانات الجديدة لا)';
+  $('#spPrefsCard').hidden=!on&&!req;
+  $('#spPrefsTitle').textContent=on?'البيانات اللي هشاركها':'اختيارات المشاركة';
+  $('#spPrefsIntro').textContent=on?'اختار بياناتك أنت. كل عضو يحدد بنفسه إيه اللي يشاركه؛ تقدر تشوف بيانات الأعضاء اللي اختاروا المشاركة.':pending?'دي اختياراتك المرفقة بطلب الانضمام، وتبدأ المشاركة بعد موافقة صاحب المساحة.':'طلبك اترفض. غيّر اختياراتك لو حابب قبل إرسال طلب جديد.';
+  list.innerHTML=spTypeRows(prefs,pending);
+  $('#spPrefsNote').textContent='تفعيل نوع بيانات يرفع سجلاته الحالية والجديدة. عند إيقافه تظل النسخ التي سبق رفعها ظاهرة، وتتوقف مزامنة التغييرات الجديدة. حذف سجل من جهاز صاحبه مع تفعيل النوع يحذفه من المساحة أيضًا.';
   $('#spSavePrefs').hidden=!on||!dirty;
   const auto=$('#spAuto'); if(auto){auto.checked=!!(S.space&&S.space.auto);auto.disabled=!!(on&&!prefs.expenses);const wrap=auto.closest('.sp-auto');if(wrap)wrap.classList.toggle('off',auto.disabled)}
 }
@@ -3198,14 +3211,14 @@ async function spListen(){
     if(!spOwner&&spUnsubR){spUnsubR();spUnsubR=null;spRequests=[]}renderSpace();
   },()=>{});
 }
-function openSpSheet(mode){spMode=mode;$('#spTitle').textContent=mode==='create'?'إنشاء مساحة مشتركة':'الانضمام لمساحة';$('#spCodeWrap').hidden=mode!=='join';$('#spGo').textContent=mode==='create'?'إنشاء':'إرسال طلب الانضمام';$('#spName').value=(S.profile&&S.profile.name)||'';$('#spCodeIn').value='';$('#spErr').textContent='';openSheetEl('spSheet')}
+function openSpSheet(mode){spMode=mode;$('#spTitle').textContent=mode==='create'?'إنشاء مساحة مشتركة':'الانضمام لمساحة';$('#spCodeWrap').hidden=mode!=='join';$('#spGo').textContent=mode==='create'?'إنشاء':'إرسال طلب الانضمام';$('#spName').value=(S.profile&&S.profile.name)||'';$('#spCodeIn').value='';$('#spErr').textContent='';spRenderSetupTypes();openSheetEl('spSheet')}
 $('#spCreate').onclick=()=>openSpSheet('create');$('#spJoin').onclick=()=>openSpSheet('join');$('#spCancel').onclick=closeSheets;
 $('#spGo').onclick=async()=>{
   const btn=$('#spGo');if(btn.disabled)return;$('#spErr').textContent='';const name=$('#spName').value.trim().replace(/\s+/g,' ').slice(0,24);let code='';
   if(spMode==='join'){if(!name){$('#spErr').textContent='اكتب اسمك عشان صاحب المساحة يعرف مين مقدم الطلب';return}code=spNorm($('#spCodeIn').value);if(!/^[A-HJ-NP-Z2-9]{10}$/.test(code)){$('#spErr').textContent='الكود لازم يكون 10 حروف وأرقام';return}}
   btn.disabled=true;const t0=btn.textContent;btn.textContent='لحظة...';
   try{
-    const f=await withTimeout(fbInit(),15000),{F,db}=f,prefs=spNormPrefs(S.spaceRequest&&S.spaceRequest.status==='rejected'?S.spaceRequest.sharePrefs:S.spaceShareDraft,false);
+    const f=await withTimeout(fbInit(),15000),{F,db}=f,prefs=spNormPrefs(spDraftPrefs(),false);
     if(spMode==='create'){
       code=spGen();const spaceRef=F.doc(db,'spaces',code),memberRef=F.doc(db,'spaces',code,'members',f.uid),batch=F.writeBatch(db);
       batch.set(spaceRef,{owner:f.uid,memberIds:[f.uid],createdAt:F.serverTimestamp()});batch.set(memberRef,{uid:f.uid,name,sharePrefs:prefs,updatedAt:F.serverTimestamp()});await withTimeout(batch.commit(),12000);
@@ -3238,6 +3251,10 @@ $('#spAuto').onchange=e=>{if(!S.space)return;if(!spNormPrefs(S.space.sharePrefs,
 $('#spTypeList').onchange=e=>{
   const type=e.target&&e.target.dataset&&e.target.dataset.spType;if(!type)return;const prefs=spDraftPrefs();prefs[type]=!!e.target.checked;
   if(S.space){S.space.shareDraft=prefs;save()}else if(S.spaceRequest){S.spaceRequest.sharePrefs=prefs;save()}else{S.spaceShareDraft=prefs;save()}renderSpace();
+};
+$('#spSetupTypeList').onchange=e=>{
+  const type=e.target&&e.target.dataset&&e.target.dataset.spType;if(!type)return;const prefs=spDraftPrefs();prefs[type]=!!e.target.checked;
+  if(S.spaceRequest&&S.spaceRequest.status==='rejected')S.spaceRequest.sharePrefs=prefs;else S.spaceShareDraft=prefs;save();
 };
 $('#spSavePrefs').onclick=async()=>{
   if(!S.space)return;if(!fb){toast('اتصل بالإنترنت أولًا لحفظ اختيارات المشاركة');return}const btn=$('#spSavePrefs'),prefs=spNormPrefs(S.space.shareDraft||S.space.sharePrefs,true),old=spNormPrefs(S.space.sharePrefs,true);if(spPrefSame(prefs,old)){renderSpace();return}
